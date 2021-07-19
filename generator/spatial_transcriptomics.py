@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 CELL_TYPE_FILE = "../data/test.cells.h5ad"
 ST_FILE = "../data/test.st.h5ad"
-NUMBER_OF_SPOTS = 100
+NUMBER_OF_SPOTS = 1000
 COUNTS_PER_SPOT = 1000
 CELLS_PER_SPOT = 10
 
