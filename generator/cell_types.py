@@ -5,6 +5,7 @@ import anndata as ad
 import numpy as np
 import pandas as pd
 
+CELL_TYPE_FILE = "../data/test.cells.h5ad"
 NUMBER_OF_GENES = 100
 NUMBER_OF_CELL_TYPES = 10
 NUMBER_OF_BASELINE_GENES = 20
@@ -43,7 +44,7 @@ def generate(n_genes=NUMBER_OF_GENES, n_types=NUMBER_OF_CELL_TYPES, n_baseline=N
         marker_genes = sample(gene_names, n_marker)
         # cells.loc[cell, "markers"] = np.array(marker_genes)
         weights.loc[cell, marker_genes] = rng.normal(r_marker[0], r_marker[1], n_marker)
-        weights.loc[cell] += genes["baseline"]
+        weights.loc[cell] = genes["baseline"]
 
     return ad.AnnData(X=weights, obs=cells, var=genes)
 
@@ -58,4 +59,4 @@ def _generate_cells(n_cells):
 
 g = generate()
 # g.X = csr_matrix(g.X)
-g.write("../data/test.cells.h5ad")
+g.write(CELL_TYPE_FILE)
