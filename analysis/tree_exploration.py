@@ -1,7 +1,10 @@
+from math import inf
+
 import anndata as ad
 import numpy as np
 import pandas as pd
 import scanpy as sc
+import scipy as sp
 from tqdm import tqdm
 
 SC_FILE = "../data/test.sc.h5ad"
@@ -27,6 +30,19 @@ def calculate_statistics(sc_data):
     return means, factors
 
 
+# Assumes b is without error
+def distance(a, b):
+    scaled_diff = (a[0] - b[0]) / a[1]
+    return (scaled_diff ** 2).sum()
+
+
+def interpolate(a, b, x):
+    return (
+        (1 - x) * a[0] + x * b[0],
+        (1 - x) * a[1] + x * b[1]
+    )
+
+
 def analyze(sc_data, st_data):
     sc.pp.normalize_total(st_data, target_sum=1)
     sc.pp.normalize_total(sc_data, target_sum=1)
@@ -34,19 +50,30 @@ def analyze(sc_data, st_data):
     cells = st_data.obs.index.array
     cell_types = means.index.array
     err = 0
+    total_miss = 0
+    total_dist = 0
 
     for cell in tqdm(cells):
         excerpt = st_data[cell]
-        target = excerpt.X.todense().A1
-        current = np.zeros(target.size)
+        target_counts = excerpt.X.todense().A1
+        target = (target_counts, np.zeros(target_counts.size))
+        current = (np.zeros(target_counts.size), np.zeros(target_counts.size))
+        # target = excerpt.X.todense().A1
+        # current = np.zeros(target.size)
         found_cells = []
         for step in range(TREE_DEPTH):
-            best = 9001
+            best = inf
             best_coord = current
             best_type = None
             for cell_type in cell_types:
-                new_coord = (step * current + means.loc[cell_type]) / (step + 1)
-                dist = (((target - new_coord) * (factors.loc[cell_type])) ** 2).sum()
+                new_coord = interpolate(
+                    current,
+                    (means.loc[cell_type], factors.loc[cell_type]),
+                    1 - (step / (step + 1))
+                )
+                dist = distance(new_coord, target)
+                # new_coord = (step * current + means.loc[cell_type]) / (step + 1)
+                # dist = (((target - new_coord) * (factors.loc[cell_type])) ** 2).sum()
                 if dist < best:
                     best_type = cell_type
                     best = dist
@@ -64,9 +91,17 @@ def analyze(sc_data, st_data):
         compare["diff"] = abs(compare["actual"] - compare["found"])
         if compare["diff"].sum() > 0:
             err += 1
+            total_miss += compare["diff"].sum()
+            #np.array(compare["actual"], dtype="float32")
+            total_dist += sp.spatial.distance.jensenshannon(
+                np.array(compare["actual"], dtype="float32"),
+                np.array(compare["found"], dtype="float32")
+            )
             #print(f"mismatch for cell {cell}")
             #print(compare)
     print(f"Correct: {len(cells) - err}/{len(cells)}")
+    print(f"Misses = {total_miss}")
+    print(f"Distance = {total_dist}")
 
 
 test_sc_data = ad.read(SC_FILE)
