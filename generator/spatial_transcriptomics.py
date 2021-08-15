@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from util import generate_expression_profile
 
 CELL_TYPE_FILE = "../data/test.cells.h5ad"
 ST_FILE = "../data/test.st.h5ad"
@@ -28,15 +29,15 @@ def generate(cell_spec, n_spots=NUMBER_OF_SPOTS, n_counts=COUNTS_PER_SPOT, n_cel
         weights = cell_spec.X[cell_type]
         gene_p[cell_type] = weights / weights.sum()
 
-    for i in tqdm(range(n_spots), desc="Generating cell data"):
+    for i in tqdm(range(n_spots), desc="Generating spot data"):
         selected_cell_types = rng.choice(n_types, size=n_cells, replace=True, shuffle=False)
         cell_data.loc[i] = 0
         p = np.zeros(shape=n_genes, dtype="float32")
         for cell_type in selected_cell_types:
-            p += gene_p[cell_type]
+            p += generate_expression_profile(cell_spec, n_genes, cell_type, rng)
             cell_data.loc[i, cell_types[cell_type]] += 1
         data.loc[i] = 0
-        recorded_genes = rng.choice(genes, size=n_counts, p=p/n_cells, replace=True)
+        recorded_genes = rng.choice(genes, size=n_counts, p=p/p.sum(), replace=True)
         [selected_genes, values] = np.unique(recorded_genes, return_counts=True)
         data.loc[i, selected_genes] = values
 

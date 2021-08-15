@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from util import generate_expression_profile
 
 CELL_TYPE_FILE = "../data/test.cells.h5ad"
 SC_FILE = "../data/test.sc.h5ad"
@@ -22,16 +23,12 @@ def generate(cell_spec, n_cells=NUMBER_OF_CELLS, n_counts=COUNTS_PER_CELL):
     data = pd.DataFrame(index=pd.RangeIndex(0, n_cells), columns=genes)
     rng = np.random.default_rng()
 
-    gene_p = np.ndarray(shape=(n_types, n_genes), dtype="float32")
-    for cell_type in range(n_types):
-        weights = cell_spec.X[cell_type]
-        gene_p[cell_type] = weights / weights.sum()
-
     for i in tqdm(range(n_cells), desc="Generating cell data"):
         cell_type = rng.choice(n_types)
+        gene_p = generate_expression_profile(cell_spec, n_genes, cell_type, rng)
         cell_data.loc[i, "cell_type"] = cell_types[cell_type]
         data.loc[i] = 0
-        recorded_genes = rng.choice(genes, size=n_counts, p=gene_p[cell_type], replace=True)
+        recorded_genes = rng.choice(genes, size=n_counts, p=gene_p, replace=True)
         [selected_genes, values] = np.unique(recorded_genes, return_counts=True)
         data.loc[i, selected_genes] = values
 
