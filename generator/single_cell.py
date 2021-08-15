@@ -27,10 +27,8 @@ def generate(cell_spec, n_cells=NUMBER_OF_CELLS, n_counts=COUNTS_PER_CELL):
         cell_type = rng.choice(n_types)
         gene_p = generate_expression_profile(cell_spec, n_genes, cell_type, rng)
         cell_data.loc[i, "cell_type"] = cell_types[cell_type]
-        data.loc[i] = 0
-        recorded_genes = rng.choice(genes, size=n_counts, p=gene_p, replace=True)
-        [selected_genes, values] = np.unique(recorded_genes, return_counts=True)
-        data.loc[i, selected_genes] = values
+        counts = rng.multinomial(n=n_counts, pvals=gene_p)
+        data.loc[i] = counts
 
     return ad.AnnData(X=data, obs=cell_data, var=gene_data)
 
