@@ -39,8 +39,17 @@ def analyze(sc_data, st_data):
                 step_target = target
             _, index = tree.query(step_target)
             current = (step * current + dense_data[index, :].A1) / (step + 1)
-            found_cells.append(sc_data.obs["cell_type"][index])
-        [found_cell_types, counts] = np.unique(found_cells, return_counts=True)
+            found_cells.append(index)
+        # for step in range(TREE_DEPTH):
+        #    # TODO: Scaling
+        #    candidate = found_cells[step]
+        #    step_current = (current - (1/TREE_DEPTH) * dense_data[candidate, :].A1) * (TREE_DEPTH / TREE_DEPTH - 1)  # TODO: CHeck this
+        #    step_target = target + (1 / (TREE_DEPTH - 1)) * (target - step_current)
+        #    _, index = tree.query(step_target)
+        #    current = ((TREE_DEPTH - 1) * step_current + dense_data[index, :].A1) / (TREE_DEPTH)
+        #    found_cells[step] = index
+        found_cells_types = [sc_data.obs["cell_type"][index] for index in found_cells]
+        [found_cell_types, counts] = np.unique(found_cells_types, return_counts=True)
         compare = pd.DataFrame(index=cell_types, columns=["actual", "found", "diff"])
         compare[:] = 0
         for cell_type in cell_types:
