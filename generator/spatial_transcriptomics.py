@@ -19,8 +19,9 @@ def generate(cell_spec, n_spots=NUMBER_OF_SPOTS, n_counts=COUNTS_PER_SPOT, n_cel
     n_types = cell_types.size
     genes = cell_spec.var.index.array
     n_genes = genes.size
-    cell_data = pd.DataFrame(index=pd.RangeIndex(0, n_spots), columns=cell_types, dtype="int")
+    cell_data = pd.DataFrame(index=pd.RangeIndex(0, n_spots), dtype="int")
     gene_data = pd.DataFrame(index=genes, columns=[])
+    Y_count = np.zeros((n_spots, n_types), dtype="int32")
     data = pd.DataFrame(index=pd.RangeIndex(0, n_spots), columns=genes)
     rng = np.random.default_rng()
 
@@ -35,15 +36,20 @@ def generate(cell_spec, n_spots=NUMBER_OF_SPOTS, n_counts=COUNTS_PER_SPOT, n_cel
         p = np.zeros(shape=n_genes, dtype="float64")
         for cell_type in selected_cell_types:
             p += generate_expression_profile(cell_spec, n_genes, cell_type, rng)
-            cell_data.loc[i, cell_types[cell_type]] += 1
-        # data.loc[i] = 0
-        # recorded_genes = rng.choice(genes, size=n_counts, p=p/p.sum(), replace=True)
-        # [selected_genes, values] = np.unique(recorded_genes, return_counts=True)
-        # data.loc[i, selected_genes] = values
+            Y_count[i, cell_type] += 1
         counts = rng.multinomial(n=n_counts, pvals=p/p.sum())
         data.loc[i] = counts
 
-    return ad.AnnData(X=data, obs=cell_data, var=gene_data)
+    Y = np.array(Y_count, dtype="float32") / Y_count.sum(axis=1)[:, np.newaxis]
+
+    return ad.AnnData(X=data, obs=cell_data, var=gene_data,
+                      obsm={
+                          "Y": Y,
+                          "Y_count": Y_count
+                      },
+                      uns={
+                          "Y_labels": np.array(cell_types, dtype="str")
+                      })
 
 
 test_spec = ad.read(CELL_TYPE_FILE)

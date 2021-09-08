@@ -8,8 +8,8 @@ import scipy as sp
 from tqdm import tqdm
 from scipy.spatial import KDTree
 
-SC_FILE = "../data/test2.sc.h5ad"
-ST_FILE = "../data/test2.st.h5ad"
+SC_FILE = "../data/train_harvard.sc.h5ad"
+ST_FILE = "../data/test_harvard2.st.h5ad"
 TREE_DEPTH = 10
 
 
@@ -50,22 +50,17 @@ def analyze(sc_data, st_data):
         #    found_cells[step] = index
         found_cells_types = [sc_data.obs["cell_type"][index] for index in found_cells]
         [found_cell_types, counts] = np.unique(found_cells_types, return_counts=True)
-        compare = pd.DataFrame(index=cell_types, columns=["actual", "found", "diff"])
-        compare[:] = 0
-        for cell_type in cell_types:
-            compare.loc[cell_type, "actual"] = excerpt.obs.loc[cell, cell_type]
-        compare.loc[found_cell_types, "found"] = counts
-        compare["diff"] = abs(compare["actual"] - compare["found"])
-        if compare["diff"].sum() > 0:
-            err += 1
-            total_miss += compare["diff"].sum()
-            #np.array(compare["actual"], dtype="float32")
-            total_dist += sp.spatial.distance.jensenshannon(
-                np.array(compare["actual"], dtype="float32"),
-                np.array(compare["found"], dtype="float32")
-            )
-            #print(f"mismatch for cell {cell}")
-            #print(compare)
+        ref = pd.Series(index=st_data.uns["Y_labels"], dtype="int32")
+        ref[:] = 0
+        ref[found_cell_types] = counts
+        found = np.array(ref, dtype="float32")
+        #total_miss += compare["diff"].sum()
+        total_dist += sp.spatial.distance.jensenshannon(
+            excerpt.obsm["Y"][0],
+            found / found.sum()
+        )
+        #print(f"mismatch for cell {cell}")
+        #print(compare)
     print(f"Correct: {len(cells) - err}/{len(cells)}")
     print(f"Misses = {total_miss}")
     print(f"AVG Distance = {total_dist / len(cells)} (total: {total_dist})")
