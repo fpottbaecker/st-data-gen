@@ -34,7 +34,7 @@ def analyze(sc_data, st_data):
         found_cells = []
         for step in range(TREE_DEPTH):
             if step != 0:
-                step_target = target + (1 / step) * (target - current)
+                step_target = target + (1 / step) * (target - current)  # TODO: just try the difference vector
             else:
                 step_target = target
             _, index = tree.query(step_target)
