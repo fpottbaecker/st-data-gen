@@ -1,3 +1,4 @@
+import os.path
 from math import inf
 
 import anndata as ad
@@ -7,6 +8,7 @@ import scanpy as sc
 import scipy as sp
 from tqdm import tqdm
 from scipy.spatial import KDTree
+import util
 
 SC_FILE = "../data/train_harvard.sc.h5ad"
 ST_FILE = "../data/test_harvard2.st.h5ad"
@@ -17,9 +19,19 @@ def analyze(sc_data, st_data):
     sc.pp.normalize_total(st_data, target_sum=1)
     sc.pp.normalize_total(sc_data, target_sum=1)
     dense_data = sc_data.X.todense()
-    tree = KDTree(
-        data=dense_data
-    )
+
+    digest = util.sha256(SC_FILE)
+    cache_path = f"{os.path.dirname(SC_FILE)}/.{digest}.tree"
+    if os.path.exists(cache_path):
+        print("using cached tree")
+        tree = util.load_pickle(cache_path)
+    else:
+        print("generating fresh tree")
+        tree = KDTree(
+            data=dense_data
+        )
+        print("caching tree")
+        util.pickle_to_file(tree, cache_path)
 
     cells = st_data.obs.index.array
     cell_types = np.unique(sc_data.obs["cell_type"])
