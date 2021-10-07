@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-SC_FILE = "../data/donor_h5.sc.h5ad"
-ST_FILE = "../data/donor_h5.st.h5ad"
+SC_FILE = "../data/test.sc.h5ad"
+ST_FILE = "../data/test1.st.h5ad"
 CELL_TYPE_COLUMN = "cell_type"
 NUMBER_OF_SPOTS = 1000
 CELLS_PER_SPOT = 10  # TODO: Maybe have a range here
