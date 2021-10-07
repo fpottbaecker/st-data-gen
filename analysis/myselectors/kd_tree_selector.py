@@ -22,6 +22,7 @@ class KDTreeSelector:
         self.n_genes = self.genes.size
         self.types = np.unique(sc_data.obs[cell_type_var])
         self.n_types = self.types.size
+        self.cell_type_var = cell_type_var
 
     def train(self):
         self.tree = KDTree(data=self.dense_data, copy_data=True)
@@ -35,7 +36,7 @@ class KDTreeSelector:
     def init_target(self, spot_profile: np.array):
         return spot_profile
 
-    def init_sate(self):
+    def init_state(self):
         return KDTreeSelector.State(self.n_genes)
 
     def select_best(self, state: State, target: np.array):
@@ -60,4 +61,4 @@ class KDTreeSelector:
         return state
 
     def map_to_types(self, selected):
-        return [self.sc_data.obs["cell_type"][index] for index in selected]
+        return [self.sc_data.obs[self.cell_type_var][index] for index in selected]

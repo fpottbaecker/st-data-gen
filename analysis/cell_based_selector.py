@@ -9,7 +9,7 @@ import scipy as sp
 from tqdm import tqdm
 from scipy.spatial import KDTree
 import util
-from myselectors import KDTreeSelector
+from myselectors import *
 
 SC_FILE = "../data/train_harvard.sc.h5ad"
 ST_FILE = "../data/test_harvard2.st.h5ad"
@@ -22,6 +22,7 @@ def evaluate_jsd(actuals, predicteds):
         predicteds,
         axis=1
     )
+    dists[np.isnan(dists)] = 0  # TODO: is this a good idea?
     print(f"JSD: mean={dists.mean()}, quartiles=({np.quantile(dists, 0)}, {np.quantile(dists, 0.25)}, [mean], {np.quantile(dists, 0.75)}, {np.quantile(dists, 1)})")
 
 
@@ -29,7 +30,7 @@ def analyze(sc_data, st_data, evaluators=evaluate_jsd):
     sc.pp.normalize_total(st_data, target_sum=1)
     sc.pp.normalize_total(sc_data, target_sum=1)
 
-    selector = KDTreeSelector(sc_data)
+    selector = GreedyTreeSelector(sc_data)
 
     digest = util.sha256(SC_FILE)
     cache_path = f"{os.path.dirname(SC_FILE)}/.{digest}.{type(selector).__name__}.pickle"
@@ -52,7 +53,7 @@ def analyze(sc_data, st_data, evaluators=evaluate_jsd):
     for cell in tqdm(cells):
         excerpt = st_data[cell]
         target = selector.init_target(excerpt.X.todense().A1)
-        current = selector.init_sate()
+        current = selector.init_state()
         all_selected = []
 
         for step in range(TREE_DEPTH):
