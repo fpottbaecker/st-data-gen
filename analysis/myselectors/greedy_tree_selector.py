@@ -64,7 +64,7 @@ class GreedyTreeSelector:
 
     def remove_element(self, state, selected):
         full = state.vector * state.weight
-        full -= self.means[selected, :].A1
+        full -= self.means[selected]
         state.weight -= 1
         state.vector = full / state.weight
         return state

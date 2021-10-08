@@ -61,4 +61,4 @@ class KDTreeSelector:
         return state
 
     def map_to_types(self, selected):
-        return [self.sc_data.obs[self.cell_type_var][index] for index in selected]
+        return [np.where(self.types == self.sc_data.obs[self.cell_type_var][index]) for index in selected]
