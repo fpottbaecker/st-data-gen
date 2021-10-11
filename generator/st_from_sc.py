@@ -1,12 +1,13 @@
+import argparse
+import pathlib
 from scipy.sparse import csr_matrix
 
 import anndata as ad
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from util import select_cells
 
-SC_FILE = "../data/test.sc.h5ad"
-ST_FILE = "../data/test1.st.h5ad"
 CELL_TYPE_COLUMN = "cell_type"
 NUMBER_OF_SPOTS = 1000
 CELLS_PER_SPOT = 10  # TODO: Maybe have a range here
@@ -29,7 +30,7 @@ def generate(sc_data, n_spots=NUMBER_OF_SPOTS, n_cells=CELLS_PER_SPOT):
         desified_x_cache[cell_type] = cell_types_cache[cell_type].X.toarray()
 
     for i in tqdm(range(n_spots), desc="Generating spot data"):
-        selected_cell_types = rng.choice(n_types, size=n_cells, replace=True, shuffle=False)
+        selected_cell_types = select_cells(n_cells, n_types, (i + 1) / n_spots, rng)
         cell_data.loc[i] = 0
         data.loc[i] = 0
         for cell_type in selected_cell_types:
@@ -50,8 +51,24 @@ def generate(sc_data, n_spots=NUMBER_OF_SPOTS, n_cells=CELLS_PER_SPOT):
                       })
 
 
-test_sc = ad.read(SC_FILE)
-g = generate(test_sc)
-g.X = csr_matrix(g.X)
-g.write(ST_FILE)
+def main():
+    parser = argparse.ArgumentParser(description="Generate a spatial transcriptomics dataset from a single cell dataset.")
+    parser.add_argument("-i", "--in", dest="in_file", help="The path to the input single cell dataset",
+                        required=True, type=pathlib.Path)
+    parser.add_argument("-o", "--out", dest="out_file", help="The output file",
+                        required=True, type=pathlib.Path)
+    parser.add_argument("-s", "--spots", dest="n_spots", help="The number of spots to generate",
+                        type=int, default=NUMBER_OF_SPOTS)
+    parser.add_argument("-n", "--cells", dest="n_cells", help="The number of cells per spot",
+                        type=int, default=CELLS_PER_SPOT)
 
+    args = parser.parse_args()
+
+    sc_data = ad.read(args.in_file)
+    g = generate(sc_data, n_spots=args.n_spots, n_cells=args.n_cells)
+    g.X = csr_matrix(g.X)
+    g.write(args.out_file)
+
+
+if __name__ == "__main__":
+    main()

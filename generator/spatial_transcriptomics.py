@@ -1,3 +1,5 @@
+import argparse
+import pathlib
 from scipy.sparse import csr_matrix
 
 import anndata as ad
@@ -5,10 +7,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from util import generate_expression_profile
+from util import generate_expression_profile, select_cells
 
-CELL_TYPE_FILE = "../data/test.cells.h5ad"
-ST_FILE = "../data/test.st.h5ad"
 NUMBER_OF_SPOTS = 1000
 COUNTS_PER_SPOT = 1000
 CELLS_PER_SPOT = 10
@@ -31,7 +31,7 @@ def generate(cell_spec, n_spots=NUMBER_OF_SPOTS, n_counts=COUNTS_PER_SPOT, n_cel
         gene_p[cell_type] = weights / weights.sum()
 
     for i in tqdm(range(n_spots), desc="Generating spot data"):
-        selected_cell_types = rng.choice(n_types, size=n_cells, replace=True, shuffle=False)
+        selected_cell_types = select_cells(n_cells, n_types, (i + 1) / n_spots, rng)
         cell_data.loc[i] = 0
         p = np.zeros(shape=n_genes, dtype="float64")
         for cell_type in selected_cell_types:
@@ -52,7 +52,26 @@ def generate(cell_spec, n_spots=NUMBER_OF_SPOTS, n_counts=COUNTS_PER_SPOT, n_cel
                       })
 
 
-test_spec = ad.read(CELL_TYPE_FILE)
-g = generate(test_spec)
-g.X = csr_matrix(g.X)
-g.write(ST_FILE)
+def main():
+    parser = argparse.ArgumentParser(description="Generate a spatial transcriptomics dataset from a cell type specification.")
+    parser.add_argument("-i", "--in", dest="in_file", help="The path to the input cell type specification",
+                        required=True, type=pathlib.Path)
+    parser.add_argument("-o", "--out", dest="out_file", help="The output file",
+                        required=True, type=pathlib.Path)
+    parser.add_argument("-s", "--spots", dest="n_spots", help="The number of spots to generate",
+                        type=int, default=NUMBER_OF_SPOTS)
+    parser.add_argument("-c", "--counts", dest="n_counts", help="The total gene-count per spot",
+                        type=int, default=COUNTS_PER_SPOT)
+    parser.add_argument("-n", "--cells", dest="n_cells", help="The number of cells per spot",
+                        type=int, default=CELLS_PER_SPOT)
+
+    args = parser.parse_args()
+
+    cell_spec = ad.read(args.in_file)
+    g = generate(cell_spec, n_spots=args.n_spots, n_counts=args.n_counts, n_cells=args.n_cells)
+    g.X = csr_matrix(g.X)
+    g.write(args.out_file)
+
+
+if __name__ == "__main__":
+    main()

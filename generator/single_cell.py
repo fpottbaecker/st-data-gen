@@ -1,3 +1,5 @@
+import argparse
+import pathlib
 from scipy.sparse import csr_matrix
 
 import anndata as ad
@@ -7,8 +9,6 @@ from tqdm import tqdm
 
 from util import generate_expression_profile
 
-CELL_TYPE_FILE = "../data/test.cells.h5ad"
-SC_FILE = "../data/test.sc.h5ad"
 NUMBER_OF_CELLS = 10000
 COUNTS_PER_CELL = 1000
 
@@ -33,7 +33,24 @@ def generate(cell_spec, n_cells=NUMBER_OF_CELLS, n_counts=COUNTS_PER_CELL):
     return ad.AnnData(X=data, obs=cell_data, var=gene_data)
 
 
-test_spec = ad.read(CELL_TYPE_FILE)
-g = generate(test_spec)
-g.X = csr_matrix(g.X)
-g.write(SC_FILE)
+def main():
+    parser = argparse.ArgumentParser(description="Generate a single cell dataset from a cell type specification.")
+    parser.add_argument("-i", "--in", dest="in_file", help="The path to the input cell type specification",
+                        required=True, type=pathlib.Path)
+    parser.add_argument("-o", "--out", dest="out_file", help="The output file",
+                        required=True, type=pathlib.Path)
+    parser.add_argument("-s", "--samples", dest="n_cells", help="The number of (cell)samples to generate",
+                        type=int, default=NUMBER_OF_CELLS)
+    parser.add_argument("-c", "--counts", dest="n_counts", help="The total gene-count per cell",
+                        type=int, default=COUNTS_PER_CELL)
+
+    args = parser.parse_args()
+
+    cell_spec = ad.read(args.in_file)
+    g = generate(cell_spec, n_cells=args.n_cells, n_counts=args.n_counts)
+    g.X = csr_matrix(g.X)
+    g.write(args.out_file)
+
+
+if __name__ == "__main__":
+    main()
