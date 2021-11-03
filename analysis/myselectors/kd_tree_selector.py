@@ -24,6 +24,9 @@ class KDTreeSelector:
         self.n_types = self.types.size
         self.cell_type_var = cell_type_var
 
+    def type_name(self):
+        return KDTreeSelector.__name__
+
     def train(self):
         self.tree = KDTree(data=self.dense_data, copy_data=True)
 
@@ -61,4 +64,4 @@ class KDTreeSelector:
         return state
 
     def map_to_types(self, selected):
-        return [np.where(self.types == self.sc_data.obs[self.cell_type_var][index]) for index in selected]
+        return [np.where(self.types == self.sc_data.obs[self.cell_type_var][index])[0][0] for index in selected]

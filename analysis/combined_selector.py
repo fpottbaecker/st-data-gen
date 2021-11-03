@@ -14,7 +14,6 @@ from myselectors import *
 SC_FILE = "../data/Harvard_nuclei_small_train2.sc.h5ad"
 ST_FILE = "../data/Harvard_nuclei_small_test.st.h5ad"
 TREE_DEPTH = 10
-ITERATION_COUNT = 2
 
 
 def evaluate_jsd(actuals, predicteds):
@@ -27,40 +26,44 @@ def evaluate_jsd(actuals, predicteds):
     print(f"JSD: mean={dists.mean()}, quartiles={np.quantile(dists, [0.0, 0.25, 0.5, 0.75, 1.0])}")
 
 
-def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klass=KDTreeSelector):
+def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klasses=[KDTreeSelector, GreedyTreeSelector]):
     sc.pp.normalize_total(st_data, target_sum=1)
     sc.pp.normalize_total(sc_data, target_sum=1)
 
-    selector = selector_klass(sc_data)
-
+    selectors = []
     digest = util.sha256(SC_FILE)
-    cache_path = f"{os.path.dirname(SC_FILE)}/.{digest}.{selector.type_name()}.pickle"
-    if os.path.exists(cache_path):
-        print("using cached training data")
-        cache_data = util.load_pickle(cache_path)
-        selector.load_cache_data(cache_data)
-    else:
-        print("training anew")
-        selector.train()
-        print("caching training data")
-        util.pickle_to_file(selector.cache_data(), cache_path)
+    for klass in selector_klasses:
+        selector = klass(sc_data)
+        selectors.append(selector)
+
+        cache_path = f"{os.path.dirname(SC_FILE)}/.{digest}.{type(selector).__name__}.pickle"
+        if os.path.exists(cache_path):
+            print("using cached training data")
+            cache_data = util.load_pickle(cache_path)
+            selector.load_cache_data(cache_data)
+        else:
+            print("training anew")
+            selector.train()
+            print("caching training data")
+            util.pickle_to_file(selector.cache_data(), cache_path)
 
     cells = st_data.obs.index.array
     cell_types = np.unique(sc_data.obs["cell_type"])
     actual = st_data.obsm["Y"]
     predicted = np.ndarray(shape=actual.shape, dtype="float32")
     cell_index = 0
-    hits = np.zeros(shape=(ITERATION_COUNT, TREE_DEPTH), dtype="int32")
-    cumulative_hits = np.zeros(shape=(ITERATION_COUNT, TREE_DEPTH), dtype="int32")
-    exceeds = np.zeros(shape=(ITERATION_COUNT, TREE_DEPTH), dtype="int32")
+    hits = np.zeros(shape=(len(selectors), TREE_DEPTH), dtype="int32")
+    cumulative_hits = np.zeros(shape=(len(selectors), TREE_DEPTH), dtype="int32")
+    exceeds = np.zeros(shape=(len(selectors), TREE_DEPTH), dtype="int32")
 
     for cell in tqdm(cells, ncols=80):
         excerpt = st_data[cell]
         target = selector.init_target(excerpt.X.todense().A1)
         current = selector.init_state()
         all_selected = []
+        iteration = 0
 
-        for iteration in range(ITERATION_COUNT):
+        for selector in selectors:
             all_hit = True
             current_profile = np.zeros(shape=cell_types.size, dtype="float32")
             for step in range(TREE_DEPTH):
@@ -85,6 +88,16 @@ def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klas
                     hits[iteration, step] += 1
                 if current_profile[selected_type] > excerpt.obsm["Y"][0, selected_type] + 0.001:
                     exceeds[iteration, step] += 1
+            iteration += 1
+            if iteration < len(selectors):
+                all_selected = selector.map_to_types(all_selected)
+                next_selector = selectors[iteration]
+                old_vector = current.vector
+                current = next_selector.init_state()
+                for selected in all_selected:
+                    current = next_selector.add_element(current, selected)
+                current.vector = old_vector
+
 
         found_cells_types = selector.map_to_types(all_selected)
         [found_cell_types, counts] = np.unique(found_cells_types, return_counts=True)

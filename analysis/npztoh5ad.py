@@ -9,8 +9,8 @@ import scipy as sp
 from tqdm import tqdm
 from scipy.spatial import KDTree
 
-NPZ_FILE = "../data/test_harvard.st.npz"
-AD_FILE = "../data/test_harvard.st.h5ad"
+NPZ_FILE = "../data/Sanger_Nuclei_small_test.npz"
+AD_FILE = "../data/Sanger_Nuclei_small_test.st.h5ad"
 TREE_DEPTH = 10
 
 def convert_ad(npz):

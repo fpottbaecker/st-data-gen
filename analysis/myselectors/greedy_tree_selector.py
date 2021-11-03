@@ -25,6 +25,9 @@ class GreedyTreeSelector:
         self.n_types = self.types.size
         self.cell_type_var = cell_type_var
 
+    def type_name(self):
+        return GreedyTreeSelector.__name__
+
     def train(self):
         self.means = np.zeros(shape=(self.n_types, self.n_genes), dtype="float32")
         self.factors = np.zeros(shape=(self.n_types, self.n_genes), dtype="float32")
@@ -58,7 +61,7 @@ class GreedyTreeSelector:
         return best_type
 
     def add_element(self, state, selected):
-        state.vector = (state.weight * state.vector + self.means[selected]) / (state.weight + 1)
+        state.vector = (state.weight * state.vector + self.means[selected].flatten()) / (state.weight + 1)
         state.weight += 1
         return state
 
