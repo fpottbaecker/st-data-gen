@@ -37,3 +37,6 @@ class SpatialTranscriptomicsDataset(Dataset):
             "npz": SpatialTranscriptomicsDataset.read_npz
         }[splitext(path)](path)
 
+    def _write(self, path):
+        self.anndata.write(path)
+

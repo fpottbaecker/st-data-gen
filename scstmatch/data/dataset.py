@@ -7,7 +7,11 @@ class Dataset:
         self.source_path = source_path
         self.cache = DatasetCache(self)
 
-    def save_to(self, path):
+    def _write(self, path):
+        pass
+
+    def write(self, path):
+        self._write(path)
         self.source_path = path
 
 
