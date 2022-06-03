@@ -10,21 +10,21 @@ class CellTypeGenerator(Generator):
     rng: np.random.Generator
 
     def __init__(self, **options):
-        super().__init__(defaults={
-            "n_genes": 500,
-            "n_cells": 10,
-            "n_baseline": 200,
-            "dist_baseline": (500, 100),
-            "dist_baseline_std": (500, 100),
-            "n_marker": 20,
-            "dist_marker": (500, 100),
-            "dist_marker_std": (50, 10),
-        }, **options)
+        super().__init__(defaults=dict(
+            n_genes=500,
+            n_cells=10,
+            n_baseline=200,
+            dist_baseline=(500, 100),
+            dist_baseline_std=(500, 100),
+            n_marker=20,
+            dist_marker=(500, 100),
+            dist_marker_std=(50, 10),
+        ), **options)
 
     def _update_inputs(self):
         self.rng = np.random.default_rng()
 
-    def _generate(self):
+    def _generate(self) -> CellTypeDataset:
         gene_names = [f"GENE-{i + 1}" for i in range(self.options.n_genes)]
 
         genes = pd.DataFrame(index=gene_names, columns=["baseline", "baseline_std"])

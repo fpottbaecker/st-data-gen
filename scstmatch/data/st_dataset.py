@@ -33,9 +33,9 @@ class SpatialTranscriptomicsDataset(Dataset):
     @staticmethod
     def read(path: str):
         return {
-            "h5ad": SpatialTranscriptomicsDataset.read_anndata,
-            "npz": SpatialTranscriptomicsDataset.read_npz
-        }[splitext(path)](path)
+            ".h5ad": SpatialTranscriptomicsDataset.read_anndata,
+            ".npz": SpatialTranscriptomicsDataset.read_npz
+        }[splitext(path)[1]](path)
 
     def _write(self, path):
         self.anndata.write(path)

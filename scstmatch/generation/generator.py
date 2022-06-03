@@ -1,11 +1,12 @@
 from scstmatch.data import Dataset
 
+
 class InputProxy:
     def __init__(self, inputs: dict):
         self.inputs = inputs
 
     def __getattr__(self, key):
-        if key in self.defaults:
+        if key in self.inputs:
             return self.inputs[key]
         raise AttributeError(f"Unknown input {key}.")
 

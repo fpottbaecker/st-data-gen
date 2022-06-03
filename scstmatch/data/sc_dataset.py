@@ -16,8 +16,8 @@ class SingleCellDataset(Dataset):
     @staticmethod
     def read(path: str):
         return {
-            "h5ad": SingleCellDataset.read_anndata,
-        }[splitext(path)](path)
+            ".h5ad": SingleCellDataset.read_anndata,
+        }[splitext(path)[1]](path)
 
     def _write(self, path):
         self.anndata.write(path)
