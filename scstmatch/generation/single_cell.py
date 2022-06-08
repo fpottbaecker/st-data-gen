@@ -25,10 +25,11 @@ class SingleCellGenerator(Generator):
         self.rng = np.random.default_rng()
 
     def _generate(self) -> SingleCellDataset:
-        anndata = self.inputs.cell_spec.anndata
-        cell_types = anndata.obs.index.array
+        # TODO: Review generation procedure
+        cell_spec = self.inputs.cell_spec.anndata
+        cell_types = cell_spec.obs.index.array
         n_types = cell_types.size
-        genes = anndata.var.index.array
+        genes = cell_spec.var.index.array
         n_genes = genes.size
         cell_data = pd.DataFrame(index=pd.RangeIndex(0, self.options.n_samples), columns=["cell_type"])
         gene_data = pd.DataFrame(index=genes, columns=[])
@@ -36,7 +37,7 @@ class SingleCellGenerator(Generator):
 
         for i in tqdm(range(self.options.n_samples), desc="Generating cell data"):  # TODO: Remove progressbar here?
             cell_type = self.rng.choice(n_types)
-            gene_p = generate_expression_profile(anndata, n_genes, cell_type, self.rng)
+            gene_p = generate_expression_profile(cell_spec, n_genes, cell_type, self.rng)
             cell_data.loc[i, "cell_type"] = cell_types[cell_type]
             counts = self.rng.multinomial(n=self.options.n_counts, pvals=gene_p)
             data.loc[i] = counts
