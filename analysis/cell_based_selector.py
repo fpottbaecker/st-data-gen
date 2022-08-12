@@ -11,8 +11,8 @@ from scipy.spatial import KDTree
 import util
 from myselectors import *
 
-SC_FILE = "../../data/hca_split/harvard-donor-h2.sc.h5ad"
-ST_FILE = "../../data/hca_split/generated/harvard-donor-H2.st.h5ad"
+SC_FILE = "../../data/HCA_split/harvard-donor-H6.sc.h5ad"
+ST_FILE = "../../data/HCA_split/generated/harvard-donor-H4.st.h5ad"
 TREE_DEPTH = 10
 ITERATION_COUNT = 2
 
@@ -27,7 +27,12 @@ def evaluate_jsd(actuals, predicteds):
     print(f"JSD: mean={dists.mean()}, quartiles={np.quantile(dists, [0.0, 0.25, 0.5, 0.75, 1.0])}")
 
 
-def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klass=GreedyTreeSelector):
+def evaluate_rmse(actuals, predicteds):
+    squared_errors = (actuals - predicteds)**2
+    print(f"RMSE: all={np.sqrt(np.mean(squared_errors))}, quartiles={np.quantile(np.sqrt(np.mean(squared_errors, axis=1)), [0.0, 0.25, 0.5, 0.75, 1.0])}")
+
+
+def cell_based_analysis(sc_data, st_data, evaluators=(evaluate_jsd, evaluate_rmse), selector_klass=GreedyTreeSelector):
     sc.pp.normalize_total(st_data, target_sum=1)
     sc.pp.normalize_total(sc_data, target_sum=1)
 
