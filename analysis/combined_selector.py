@@ -48,8 +48,10 @@ def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klas
             util.pickle_to_file(selector.cache_data(), cache_path)
 
     cells = st_data.obs.index.array
-    cell_types = np.unique(sc_data.obs["cell_type"])
+    reference_cell_types = np.unique(sc_data.obs["cell_type"])
     actual = st_data.obsm["Y"]
+    actual_cell_types = actual.columns
+    prediction_cell_types = actual_cell_types.con
     predicted = np.ndarray(shape=actual.shape, dtype="float32")
     cell_index = 0
     hits = np.zeros(shape=(len(selectors), TREE_DEPTH), dtype="int32")
@@ -65,7 +67,7 @@ def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klas
 
         for selector in selectors:
             all_hit = True
-            current_profile = np.zeros(shape=cell_types.size, dtype="float32")
+            current_profile = np.zeros(shape=reference_cell_types.size, dtype="float32")
             for step in range(TREE_DEPTH):
                 if iteration != 0:
                     candidate = all_selected[step]
@@ -101,7 +103,7 @@ def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klas
 
         found_cells_types = selector.map_to_types(all_selected)
         [found_cell_types, counts] = np.unique(found_cells_types, return_counts=True)
-        ref = pd.Series(index=st_data.uns["Y_labels"], dtype="int32")
+        ref = pd.Series(index=actual.columns, dtype="int32")
         ref[:] = 0
         ref[found_cell_types] = counts
         found = np.array(ref, dtype="float32")

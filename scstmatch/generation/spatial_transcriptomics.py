@@ -33,7 +33,7 @@ class SpatialTranscriptomicsGenerator(Generator):
         n_genes = genes.size
         cell_data = pd.DataFrame(index=pd.RangeIndex(0, self.options.n_spots), dtype="int")
         gene_data = pd.DataFrame(index=genes, columns=[])
-        y_count = np.zeros((self.options.n_spots, n_types), dtype="int32")
+        y_counts = pd.DataFrame(data=np.zeros(shape=(self.options.n_spots, n_types)), index=cell_data.index, columns=cell_types, dtype="int32")
         data = pd.DataFrame(index=pd.RangeIndex(0, self.options.n_spots), columns=genes)
 
         gene_p = np.ndarray(shape=(n_types, n_genes), dtype="float32")
@@ -47,19 +47,18 @@ class SpatialTranscriptomicsGenerator(Generator):
             p = np.zeros(shape=n_genes, dtype="float64")
             for cell_type in selected_cell_types:
                 p += generate_expression_profile(cell_spec, n_genes, cell_type, self.rng)
-                y_count[i, cell_type] += 1
+                y_counts.at[i, cell_types[cell_type]] += 1
             counts = self.rng.multinomial(n=self.options.n_counts, pvals=p / p.sum())
             data.loc[i] = counts
 
-        y = np.array(y_count, dtype="float32") / y_count.sum(axis=1)[:, np.newaxis]
+        y = pd.DataFrame(data=y_counts / np.array(y_counts.sum(axis=1))[:, np.newaxis], dtype="float32")
 
-        anndata = ad.AnnData(X=data, obs=cell_data, var=gene_data,
-                             obsm={
-                                 "Y": y,
-                                 "Y_count": y_count
-                             },
-                             uns={
-                                 "Y_labels": np.array(cell_types, dtype="str")
-                             })
+        anndata = ad.AnnData(X=data, obs=cell_data, var=gene_data)
+
+        y.index = anndata.obs_names
+        anndata.obsm["Y"] = y
+        y_counts.index = anndata.obs_names
+        anndata.obsm["Y_counts"] = y_counts
+
         anndata.X = csr_matrix(anndata.X)
         return SpatialTranscriptomicsDataset(anndata)

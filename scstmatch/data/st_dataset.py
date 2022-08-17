@@ -19,12 +19,8 @@ class SpatialTranscriptomicsDataset(Dataset):
     @staticmethod
     def read_npz(path: str, materialize=False):
         npz = np.load(path)
-        anndata = ad.AnnData(
-            X=npz["ST_X_test"],
-            var=pd.DataFrame(index=npz["genes"]),
-            obsm={"Y": npz["ST_Y_test"]},
-            uns={"Y_labels": npz["cell_types"]}
-        )
+        anndata = ad.AnnData(X=npz["ST_X_test"], var=pd.DataFrame(index=npz["genes"]))
+        anndata.obsm["Y"] = pd.DataFrame(npz["ST_Y_test"], index=anndata.obs_names, columns=npz["cell_types"])
         anndata.X = csr_matrix(anndata.X)
         if materialize:
             anndata.write(path + ".h5ad")

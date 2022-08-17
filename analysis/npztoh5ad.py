@@ -13,14 +13,14 @@ NPZ_FILE = "../data/Sanger_Nuclei_small_test.npz"
 AD_FILE = "../data/Sanger_Nuclei_small_test.st.h5ad"
 TREE_DEPTH = 10
 
+
 def convert_ad(npz):
-    return ad.AnnData(X=npz["ST_X_test"], var=pd.DataFrame(index=npz["genes"]),
-                      obsm={
-                          "Y": npz["ST_Y_test"]
-                      },
-                      uns={
-                          "Y_labels": npz["cell_types"]
-                      })
+    y = pd.DataFrame(npz["ST_Y_test"], columns=npz["cell_types"])
+    data = ad.AnnData(X=npz["ST_X_test"], var=pd.DataFrame(index=npz["genes"]))
+    y.index = data.obs_names
+    data.obsm["Y"] = y
+
+    return data
 
 
 npz_data = np.load(NPZ_FILE)

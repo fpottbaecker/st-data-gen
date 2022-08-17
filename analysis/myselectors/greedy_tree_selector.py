@@ -74,3 +74,6 @@ class GreedyTreeSelector:
 
     def map_to_types(self, selected):
         return selected
+
+    def map_to_names(self, selected):
+        return self.types[selected]

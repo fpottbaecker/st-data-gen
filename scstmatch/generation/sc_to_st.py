@@ -37,7 +37,7 @@ class SC2STGenerator(Generator):
         genes = sc_data.var.index.array
         cell_data = pd.DataFrame(index=pd.RangeIndex(0, self.options.n_spots), dtype="int")
         gene_data = pd.DataFrame(index=genes, columns=[])
-        y_count = np.zeros(shape=(self.options.n_spots, n_types), dtype="int32")
+        y_counts = pd.DataFrame(data=np.zeros(shape=(self.options.n_spots, n_types)), index=cell_data.index, columns=cell_types, dtype="int32")
         data = pd.DataFrame(index=pd.RangeIndex(0, self.options.n_spots), columns=genes)
         rng = np.random.default_rng()
 
@@ -48,17 +48,16 @@ class SC2STGenerator(Generator):
             for cell_type in selected_cell_types:
                 cell_type_name = cell_types[cell_type]
                 data.loc[i] += rng.choice(self.counts_cache[cell_type_name])
-                y_count[i, cell_type] += 1
+                y_counts.at[i, cell_types[cell_type]] += 1
 
-        y = np.array(y_count, dtype="float32") / y_count.sum(axis=1)[:, np.newaxis]
+        y = pd.DataFrame(data=y_counts / np.array(y_counts.sum(axis=1))[:, np.newaxis], dtype="float32")
 
-        anndata = ad.AnnData(X=data, obs=cell_data, var=gene_data,
-                             obsm={
-                                 "Y": y,
-                                 "Y_count": y_count
-                             },
-                             uns={
-                                 "Y_labels": np.array(cell_types, dtype="str")
-                             })
+        anndata = ad.AnnData(X=data, obs=cell_data, var=gene_data)
+
+        y.index = anndata.obs_names
+        anndata.obsm["Y"] = y
+        y_counts.index = anndata.obs_names
+        anndata.obsm["Y_counts"] = y_counts
+
         anndata.X = csr_matrix(anndata.X)
         return SpatialTranscriptomicsDataset(anndata)
