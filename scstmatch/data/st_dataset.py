@@ -9,8 +9,7 @@ from .dataset import Dataset
 
 class SpatialTranscriptomicsDataset(Dataset):
     def __init__(self, anndata: ad.AnnData, path: str = None):
-        super().__init__(path)
-        self.anndata = anndata
+        super().__init__(anndata, path)
 
     @staticmethod
     def read_anndata(path: str):

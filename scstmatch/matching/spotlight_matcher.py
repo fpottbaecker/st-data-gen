@@ -80,12 +80,12 @@ class SPOTLightMatcher(Matcher):
         vunexplained_residuals = 1 - (vresiduals / vtotals)
         xunexplained_residuals = 1 - (xresiduals / vtotals)
 
-        print(vunexplained_residuals.tolist())
+        print(f"1) {vunexplained_residuals.tolist()}")
         print(1 - (np.sum(vresiduals) / np.sum(vtotals)))
 
-        print(xunexplained_residuals.tolist())
+        print(f"2) {xunexplained_residuals.tolist()}")
         print(1 - (np.sum(xresiduals) / np.sum(vtotals)))
 
-        print(unexplained_residuals.tolist())
+        print(f"old) {unexplained_residuals.tolist()}")
 
         return 1 - (np.sum(residuals) / np.sum(totals))

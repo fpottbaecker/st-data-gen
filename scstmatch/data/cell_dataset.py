@@ -6,8 +6,7 @@ from .dataset import Dataset
 
 class CellTypeDataset(Dataset):
     def __init__(self, anndata: ad.AnnData, path: str = None):
-        super().__init__(path)
-        self.anndata = anndata
+        super().__init__(anndata, path)
 
     @staticmethod
     def read_anndata(path: str):
@@ -19,5 +18,5 @@ class CellTypeDataset(Dataset):
             ".h5ad": CellTypeDataset.read_anndata,
         }[splitext(path)[1]](path)
 
-    def _write(self, path):
-        self.anndata.write(path)
+    def copy_with(self, anndata: ad.AnnData):
+        return CellTypeDataset(anndata, self.source_path)

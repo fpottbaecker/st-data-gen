@@ -1,0 +1,74 @@
+sources:
+  scrna:
+    hca:
+      url: https://cellgeni.cog.sanger.ac.uk/heartcellatlas/data/global_raw.h5ad
+      cell_type_column: "cell_type"
+      preparation:
+        cell_filters: # Mostly uses sc.pp.filter_cells parameters {min,max}_{counts,genes}
+          min_counts: 10
+          max_counts: 40000
+          min_genes: 20
+          quality_control: # Simplistic adaptation of sc.pp.
+            mt:
+              starts_with: "mt-"
+              max_frac: 0.2
+        gene_filters: # Mostly uses sc.pp.filter_genes parameters {min,max}_{counts,cells}
+          min_cells: 20
+        normalize: 1e6
+        split: [0.6, 0.4]
+      definitions:
+        harvard: &hca-filter-harvard
+          action: filter
+          obs:
+            cell_source: "Harvard-Nuclei"
+        drops: &hca-drops
+          action: filter
+          include_original: true
+          variants:
+            -muscles:
+              -obs:
+                cell_type: [ "Artrial_Cardiomyocyte", "Ventricular_Cardiomyocyte" ]
+            -neuronal:
+              -obs:
+                cell_type: [ "Neuronal" ]
+  spatial:
+    human-heart-10x-st:
+      url: https://cf.10xgenomics.com/samples/spatial-exp/1.1.0/V1_Human_Heart/V1_Human_Heart_filtered_feature_bc_matrix.h5
+      type: spatial
+
+definitions:
+  visium1: &synthesize-visium1
+    action: synthesize_spatial
+    counts: [ 5000, 9000 ]
+    cells: [ 5, 15 ]
+
+
+variants:
+  hca-harvard-donors:
+    basename: hca_harvard
+    source: hca
+    steps:
+      - *hca-filter-harvard
+      - action: split
+        by: "donor"
+      - *hca-drops
+#      - *synthesize-visium1
+#      - action: output_reference
+  hca-harvard-gender:
+    basename: hca_harvard
+    source: hca
+    steps:
+      - *hca-filter-harvard
+      - action: split
+        by: "gender"
+      - *hca-drops
+#      - action: output_reference
+  hca-harvard-age:
+    basename: hca_harvard
+    source: hca
+    steps:
+      - *hca-filter-harvard
+      - action: split
+        by: "age_group"
+      - *hca-drops
+#      - action: output_reference

@@ -7,12 +7,10 @@ DEFAULT_CELL_TYPE_COLUMN = "cell_type"
 
 
 class SingleCellDataset(Dataset):
-    anndata: ad.AnnData
     cell_type_column: str
 
     def __init__(self, anndata: ad.AnnData, path: str = None):
-        super().__init__(path)
-        self.anndata = anndata
+        super().__init__(anndata, path)
         if DEFAULT_CELL_TYPE_COLUMN in self.anndata.obs:
             self.cell_type_column = DEFAULT_CELL_TYPE_COLUMN
 
@@ -26,5 +24,7 @@ class SingleCellDataset(Dataset):
             ".h5ad": SingleCellDataset.read_anndata,
         }[splitext(path)[1]](path)
 
-    def _write(self, path):
-        self.anndata.write(path)
+    def copy_with(self, anndata: ad.AnnData):
+        c = SingleCellDataset(anndata, self.source_path)
+        c.cell_type_column = self.cell_type_column
+        return c

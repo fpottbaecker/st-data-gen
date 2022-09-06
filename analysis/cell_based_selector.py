@@ -11,7 +11,7 @@ from scipy.spatial import KDTree
 import util
 from myselectors import *
 
-SC_FILE = "../../data/HCA_split/harvard-donor-H6-weak.sc.h5ad"
+SC_FILE = "../../data/HCA_split/harvard-donor-H6.sc.h5ad"
 ST_FILE = "../../data/HCA_split/generated/harvard-donor-H6-weak.st.h5ad"
 TREE_DEPTH = 10
 ITERATION_COUNT = 2

@@ -1,18 +1,27 @@
 import os.path
+
+import anndata as ad
+
 from scstmatch.util import load_pickle, pickle_to_file, sha256_for_file
 
 
 class Dataset:
-    def __init__(self, source_path=None):
+    anndata: ad.AnnData
+
+    def __init__(self, anndata: ad.AnnData, source_path=None):
+        self.anndata = anndata
         self.source_path = source_path
         self.cache = DatasetCache(self)
 
     def _write(self, path):
-        pass
+        self.anndata.write(path)
 
     def write(self, path):
         self._write(path)
         self.source_path = path
+
+    def copy_with(self, anndata: ad.AnnData):
+        return Dataset(anndata, self.source_path)
 
 
 class DatasetCache:
