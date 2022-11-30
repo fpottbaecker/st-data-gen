@@ -21,16 +21,24 @@ sources:
           action: filter
           obs:
             cell_source: "Harvard-Nuclei"
+          -obs:
+            cell_type: [ "NotAssigned", "doublets" ]
+        sanger: &hca-filter-sanger
+          action: filter
+          obs:
+            cell_source: "Sanger-Nuclei"
+          -obs:
+            cell_type: [ "NotAssigned", "doublets" ]
         drops: &hca-drops
           action: filter
-          include_original: true
+          include_original: false
           variants:
             -muscles:
               -obs:
-                cell_type: [ "Artrial_Cardiomyocyte", "Ventricular_Cardiomyocyte" ]
-            -neuronal:
+                cell_type: [ "Atrial_Cardiomyocyte", "Ventricular_Cardiomyocyte" ]
+            -endothelial:
               -obs:
-                cell_type: [ "Neuronal" ]
+                cell_type: [ "Endothelial" ]
   spatial:
     human-heart-10x-st:
       url: https://cf.10xgenomics.com/samples/spatial-exp/1.1.0/V1_Human_Heart/V1_Human_Heart_filtered_feature_bc_matrix.h5
@@ -44,16 +52,6 @@ definitions:
 
 
 variants:
-  hca-harvard-donors:
-    basename: hca_harvard
-    source: hca
-    steps:
-      - *hca-filter-harvard
-      - action: split
-        by: "donor"
-      - *hca-drops
-#      - *synthesize-visium1
-#      - action: output_reference
   hca-harvard-gender:
     basename: hca_harvard
     source: hca
@@ -62,7 +60,7 @@ variants:
       - action: split
         by: "gender"
       - *hca-drops
-#      - action: output_reference
+      - action: output_reference
   hca-harvard-age:
     basename: hca_harvard
     source: hca
@@ -71,4 +69,43 @@ variants:
       - action: split
         by: "age_group"
       - *hca-drops
-#      - action: output_reference
+      - action: output_reference
+  hca-harvard-donors:
+    basename: hca_harvard
+    source: hca
+    steps:
+      - *hca-filter-harvard
+      - action: split
+        by: "donor"
+      - *hca-drops
+      - *synthesize-visium1
+      - action: output_reference
+
+  hca-sanger-gender:
+    basename: hca_sanger
+    source: hca
+    steps:
+      - *hca-filter-sanger
+      - action: split
+        by: "gender"
+      - *hca-drops
+      - action: output_reference
+  hca-sanger-age:
+    basename: hca_sanger
+    source: hca
+    steps:
+      - *hca-filter-sanger
+      - action: split
+        by: "age_group"
+      - *hca-drops
+      - action: output_reference
+  hca-sanger-donors:
+    basename: hca_sanger
+    source: hca
+    steps:
+      - *hca-filter-sanger
+      - action: split
+        by: "donor"
+      - *hca-drops
+      - *synthesize-visium1
+      - action: output_reference

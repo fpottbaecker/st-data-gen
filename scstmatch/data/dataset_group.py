@@ -12,8 +12,8 @@ class DatasetGroup:
         self.data = data
 
     @classmethod
-    def from_dataset(cls, dataset):
-        return DatasetGroup({"": dataset})
+    def from_dataset(cls, dataset, key=""):
+        return DatasetGroup({key: dataset})
 
     @staticmethod
     def join_keys(a, b):
@@ -21,6 +21,10 @@ class DatasetGroup:
 
     def map(self, fn: Callable[[Dataset], Dataset]):
         return DatasetGroup({key: fn(value) for key, value in self.data.items()})
+
+    def iter(self, fn: Callable[[str, Dataset]]):
+        for key, value in self.data.items():
+            fn(key, value)
 
     def split(self, fn: Callable[[str, Dataset], dict[str, Dataset]]):
         return DatasetGroup({k: v for key, value in self.data.items() for k, v in fn(key, value).items()})

@@ -17,6 +17,7 @@ class QualityControl:
     starts_with: str
 
     max_frac: float
+
     def __init__(self, key, /, starts_with: str, max_frac: float = None, **kwargs):
         self.starts_with = starts_with
         self.max_frac = max_frac
@@ -27,6 +28,7 @@ class QualityControl:
 
     def filter(self, anndata: ad.AnnData):
         return anndata[anndata.obs[f"pct_counts_{self.key}"] < self.max_frac * 100, :]
+
 
 class Preparation:
     CELL_KEYS = ["min_counts", "max_counts", "min_genes", "max_genes"]
@@ -47,7 +49,6 @@ class Preparation:
 
         self.qc_vars = {key: QualityControl(key, **spec) for key, spec in cell_filters.get("quality_control", {}).items()}
 
-
     def apply(self, anndata: ad.AnnData):
         # Filter Cells and Genes
         for key in Preparation.CELL_KEYS:
@@ -64,7 +65,6 @@ class Preparation:
         for qc in self.qc_vars.values():
             anndata = qc.filter(anndata)
 
-
         anndata.obs[SPLITTING_KEY] = np.random.choice([SPLIT_TRAINING, SPLIT_TESTING], size=anndata.n_obs, replace=True, p=self.split)
         anndata.raw = anndata
         sc.pp.normalize_total(anndata, self.normalize)
@@ -79,7 +79,7 @@ class SingleCellSource:
         self.cell_type_column = cell_type_column
         self.preparation = Preparation(preparation)
 
-    def setup(self):
+    def setup(self, key=None):
         # TODO: Download file from url and cache data
         filename = f"{self.key}.sc.h5ad"
         source_path = SOURCES_DIR + "/" + filename
@@ -98,4 +98,4 @@ class SingleCellSource:
         data = SingleCellDataset.read(source_path)
         print(f"SOURCE: {self.key} - LOADED")
         data.cell_type_column = self.cell_type_column
-        return DatasetGroup.from_dataset(data)
+        return DatasetGroup.from_dataset(data, key)
