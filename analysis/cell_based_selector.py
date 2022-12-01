@@ -8,8 +8,8 @@ import scanpy as sc
 import scipy as sp
 from tqdm import tqdm
 from scipy.spatial import KDTree
-import util
-from myselectors import *
+import analysis.util as util
+from analysis.myselectors import *
 
 SC_FILE = "../../data/HCA_split/harvard-donor-H6.sc.h5ad"
 ST_FILE = "../../data/HCA_split/generated/harvard-donor-H6-weak.st.h5ad"
@@ -25,20 +25,39 @@ def evaluate_jsd(actuals, predicteds):
     )
     dists[np.isnan(dists)] = 0  # TODO: is this a good idea?
     print(f"JSD: mean={dists.mean()}, quartiles={np.quantile(dists, [0.0, 0.25, 0.5, 0.75, 1.0])}")
+    return dists
 
 
 def evaluate_rmse(actuals, predicteds):
     squared_errors = (actuals - predicteds)**2
     print(f"RMSE: all={np.sqrt(np.nanmean(squared_errors))}, quartiles={np.quantile(np.sqrt(np.mean(squared_errors, axis=1)), [0.0, 0.25, 0.5, 0.75, 1.0])}")
+    return np.sqrt(np.mean(squared_errors, axis=1))
 
 
 def cell_based_analysis(sc_data, st_data, evaluators=(evaluate_jsd, evaluate_rmse), selector_klass=GreedyTreeSelector):
+    genes = ['ABCA6', 'ABCA8', 'ABCA9', 'ACACB', 'ACSL1', 'ACTA2', 'ADGRB3', 'ANK3',
+       'ANKRD44', 'ANO2', 'ARHGAP15', 'BCL2', 'BICC1', 'BTNL9', 'CADM2',
+       'CADPS', 'CARMIL1', 'CARMN', 'CCND3', 'CD163', 'CDC42SE2', 'CDH19',
+       'CMYA5', 'CTNNA3', 'DCN', 'DLC1', 'DOCK2', 'EGFL7', 'EGFLAM', 'EHBP1',
+       'ELMO1', 'EPS8', 'ERBB4', 'FHL2', 'FKBP5', 'FMN1', 'FRMD3', 'FRMD4B',
+       'FYN', 'GNAQ', 'GPAM', 'GRIP1', 'GUCY1A2', 'ID1', 'IKZF1', 'IQGAP2',
+       'KCNAB1', 'LAMA2', 'LDB2', 'LINC02248', 'LIPE-AS1', 'LRMDA', 'MAPK10',
+       'MGST1', 'MLIP', 'MYBPC3', 'MYH11', 'MYH6', 'MYL7', 'NEAT1', 'NEGR1',
+       'NR2F2-AS1', 'NRXN1', 'NRXN3', 'NTRK3', 'PAM', 'PARP8', 'PDE3B',
+       'PDE4DIP', 'PDGFRB', 'PID1', 'PLA2G5', 'PLIN1', 'PNPLA2', 'PRKG1',
+       'PTPRB', 'PTPRC', 'RABGAP1L', 'RBM47', 'RGS5', 'RORA', 'RYR2', 'SCN7A',
+       'SGCD', 'SKAP1', 'SLC8A1', 'SLIT3', 'SOX5', 'ST6GALNAC3', 'SYNE1',
+       'TBXAS1', 'TRDN-AS1', 'TTN', 'VWF', 'ZFHX3']
+
+    st_data = st_data[:, genes]
+    sc_data = sc_data[:, genes]
+
     sc.pp.normalize_total(st_data, target_sum=1)
     sc.pp.normalize_total(sc_data, target_sum=1)
 
     selector = selector_klass(sc_data)
 
-    digest = util.sha256(SC_FILE)
+    digest = "hi"# util.sha256(SC_FILE)
     cache_path = f"{os.path.dirname(SC_FILE)}/.{digest}.{selector.type_name()}.pickle"
     if os.path.exists(cache_path):
         print("using cached training data")
@@ -48,7 +67,7 @@ def cell_based_analysis(sc_data, st_data, evaluators=(evaluate_jsd, evaluate_rms
         print("training anew")
         selector.train()
         print("caching training data")
-        util.pickle_to_file(selector.cache_data(), cache_path)
+        #util.pickle_to_file(selector.cache_data(), cache_path)
 
     cells = st_data.obs.index.array
     reference_cell_types = pd.Index(np.unique(sc_data.obs["cell_type"]))
@@ -107,14 +126,15 @@ def cell_based_analysis(sc_data, st_data, evaluators=(evaluate_jsd, evaluate_rms
         for evaluator in evaluators:
             evaluator(actual, predicted)
 
-    print(f"Step hits (%)")
-    print(hits * 100.0 / cells.size)
-    print(f"Full hits (%)")
-    print(cumulative_hits * 100.0 / cells.size)
-    print("Divergence from randomness")
-    print(((hits / cells.size).cumprod(axis=1) - (cumulative_hits / cells.size)) * 100.0)
-    print(f"Exceeding counts (%)")
-    print(exceeds * 100.0 / cells.size)
+    #print(f"Step hits (%)")
+    #print(hits * 100.0 / cells.size)
+    #print(f"Full hits (%)")
+    #print(cumulative_hits * 100.0 / cells.size)
+    #print("Divergence from randomness")
+    #print(((hits / cells.size).cumprod(axis=1) - (cumulative_hits / cells.size)) * 100.0)
+    #print(f"Exceeding counts (%)")
+    #print(exceeds * 100.0 / cells.size)
+    return evaluate_rmse(actual, predicted)
 
 
 if __name__ == "__main__":

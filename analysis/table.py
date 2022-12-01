@@ -15,26 +15,28 @@ FILE_A = "../data/reference/hca_sanger_gender_Female.sc.h5ad"
 FILE_B = "../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad"
 
 COLUMNS = {
-    ("Harvard", None, "F"): "../data/reference/hca_harvard_gender_Female.sc.h5ad",
-    ("Harvard", None, "M"): "../data/reference/hca_harvard_gender_Male.sc.h5ad",
+    ("Harvard", "full", "F"): "../data/reference/hca_harvard_gender_Female.sc.h5ad",
+    ("Harvard", "full", "M"): "../data/reference/hca_harvard_gender_Male.sc.h5ad",
     ("Harvard", "V1", "F"): "../data/reference/hca_harvard_gender_Female_-muscles.sc.h5ad",
     ("Harvard", "V1", "M"): "../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad",
     ("Harvard", "V2", "F"): "../data/reference/hca_harvard_gender_Female_-endothelial.sc.h5ad",
     ("Harvard", "V2", "M"): "../data/reference/hca_harvard_gender_Male_-endothelial.sc.h5ad",
-    ("Sanger", None, "F"): "../data/reference/hca_sanger_gender_Female.sc.h5ad",
-    ("Sanger", None, "M"): "../data/reference/hca_sanger_gender_Male.sc.h5ad",
-    ("Sanger", "V1", "M"): "../data/reference/hca_sanger_gender_Male_-muscles.sc.h5ad",
+    ("Sanger", "full", "F"): "../data/reference/hca_sanger_gender_Female.sc.h5ad",
+    ("Sanger", "full", "M"): "../data/reference/hca_sanger_gender_Male.sc.h5ad",
+    ("Harvard", "full", "H6"): "../data/reference/hca_harvard_donor_H6.sc.h5ad",
+    ("Sanger", "full", "D2"): "../data/reference/hca_sanger_donor_D2.sc.h5ad",
+    "EVERYTHING": "../data/.sources/hca.sc.h5ad",
 }
 
 ROWS = {
-    ("Harvard", None, "F"): "../data/st/hca_harvard_donor_H6.st.h5ad",
-    ("Harvard", None, "M"): "../data/st/hca_harvard_donor_H3.st.h5ad",
+    ("Harvard", "full", "F"): "../data/st/hca_harvard_donor_H6.st.h5ad",
+    ("Harvard", "full", "M"): "../data/st/hca_harvard_donor_H3.st.h5ad",
     ("Harvard", "V1", "F"): "../data/st/hca_harvard_donor_H6_-muscles.st.h5ad",
     ("Harvard", "V1", "M"): "../data/st/hca_harvard_donor_H3_-muscles.st.h5ad",
     ("Harvard", "V2", "F"): "../data/st/hca_harvard_donor_H6_-endothelial.st.h5ad",
     ("Harvard", "V2", "M"): "../data/st/hca_harvard_donor_H3_-endothelial.st.h5ad",
-    ("Sanger", None, "F"): "../data/st/hca_sanger_donor_D5.st.h5ad",
-    ("Sanger", None, "M"): "../data/st/hca_sanger_donor_D2.st.h5ad",
+    ("Sanger", "full", "F"): "../data/st/hca_sanger_donor_D5.st.h5ad",
+    ("Sanger", "full", "M"): "../data/st/hca_sanger_donor_D2.st.h5ad",
 }
 
 
@@ -86,14 +88,15 @@ def generate_table(rows, columns):
     #formatters = map(lambda x: partial(identify_best, df, x), range(0, df.shape[1]))
 
     # .style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True, clines="skip-last;index")
-    print(df.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex())
+        print(df.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True, clines="skip-last;index"))
 
 
 def generate_data():
     pairs = {
-        "match": (("Harvard", None, "F"), ("Harvard", None, "F")),
-        "mismatch": (("Sanger", "V1", "M"), ("Harvard", None, "F")),
-        #"none/V1": ("F(h) -muscles", "H6(f)"),
+        "match": ("EVERYTHING", ("Harvard", "full", "F")),
+        "mismatch": (("Harvard", "full", "M"), ("Harvard", "full", "F")),
+        "H6": (("Harvard", "full", "H6"), ("Harvard", "full", "F")),
+        "D2": (("Sanger", "full", "D2"), ("Harvard", "full", "F")),
         #"none/V2": ("F(h) -endothelial", "H6(f)"),
         #"gender/V1": ("M(h) -muscles", "H6(f)"),
         #"gender/V2": ("M(h) -endothelial", "H6(f)"),
@@ -107,6 +110,7 @@ def generate_data():
     })
 
     for label, paired in pairs.items():
+        print(label)
         reference = SingleCellDataset.read(COLUMNS[paired[0]])
         target = SpatialTranscriptomicsDataset.read(ROWS[paired[1]])
         result = SPOTLightMatcher().match(reference, target)
@@ -127,7 +131,7 @@ def generate_data():
     plt.set_xlabel("fraction of residuals explained")
     #plt.set_title("filter-genes = none (HCA dataset)")
     fig.show()
-    fig.savefig("filter_none.pdf")
+    #fig.savefig("filter_none.pdf")
 
     fig = plot.figure(figsize=(8, 3), dpi=300)
     fig.subplots_adjust(left=0.05, right=0.95, bottom=0.15)
@@ -138,7 +142,7 @@ def generate_data():
     # plt.set_xlabel("mismatch")
     plt.set_xlabel("fraction of residuals explained")
     #plt.set_title("filter-genes = evaluate (HCA dataset)")
-    fig.savefig("filter_evaluate.pdf")
+    #fig.savefig("filter_evaluate.pdf")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from scstmatch.data import SingleCellDataset, SpatialTranscriptomicsDataset
 
+
 class Matcher():
     def __init__(self):
         pass

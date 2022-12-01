@@ -1,19 +1,28 @@
-import numpy as np
+import pandas as pd
 
 from scstmatch.data import SingleCellDataset, SpatialTranscriptomicsDataset
 
 
 class Deconvolver:
     reference: SingleCellDataset
+    is_trained: bool
 
     def __init__(self, reference: SingleCellDataset):
         self.reference = reference
+        self.is_trained = False
 
     def _train(self):
         pass
 
-    def _deconvolve(self, st_data: SpatialTranscriptomicsDataset) -> np.array:
+    def _deconvolve(self, target: SpatialTranscriptomicsDataset) -> pd.DataFrame:
         pass
 
-    def deconvolve(self, st_data: SpatialTranscriptomicsDataset) -> np.array:
-        return self._deconvolve(st_data)
+    def train(self):
+        if self.is_trained:
+            return
+        self._train()
+        self.is_trained = True
+
+    def deconvolve(self, target: SpatialTranscriptomicsDataset) -> pd.DataFrame:
+        self.train()
+        return self._deconvolve(target)
