@@ -3,68 +3,61 @@ from scipy.spatial import KDTree
 
 __all__ = ['KDTreeSelector']
 
+from .selector import Selector
 
-class KDTreeSelector:
+
+class KDTreeSelector(Selector):
     tree: KDTree
+    # State variables
+    target_profile: np.ndarray
+    num_selected: int
+    current_profile: np.ndarray
 
-    class State:
-        vector: np.array
-        weight: int
-
-        def __init__(self, size):
-            self.weight = 0
-            self.vector = np.zeros(size)
-
-    def __init__(self, sc_data, cell_type_var="cell_type"):
-        self.sc_data = sc_data
-        self.dense_data = self.sc_data.X.todense()
-        self.genes = sc_data.var.index
-        self.n_genes = self.genes.size
-        self.types = np.unique(sc_data.obs[cell_type_var])
-        self.n_types = self.types.size
-        self.cell_type_var = cell_type_var
+    def __init__(self):
+        super().__init__()
 
     def type_name(self):
         return KDTreeSelector.__name__
 
-    def train(self):
-        self.tree = KDTree(data=self.dense_data, copy_data=True)
+    def _load_context(self):
+        anndata = self.sc_data.anndata
+        self.dense_data = anndata.X.todense()
+        self.genes = anndata.var.index
+        self.n_genes = self.genes.size
+        self.cell_type_var = self.sc_data.cell_type_column
+        self.types = np.unique(anndata.obs[self.cell_type_var])
+        self.n_types = self.types.size
 
-    def cache_data(self):
+    def _train(self):
+        self.tree = KDTree(data=self.dense_data, copy_data=True)
         return self.tree
 
-    def load_cache_data(self, data):
+    def _load_cache(self, data):
         self.tree = data
 
-    def init_target(self, spot_profile: np.array):
-        return spot_profile
+    def reset(self, spot_profile: np.array):
+        self.target_profile = spot_profile
+        self.num_selected = 0
+        self.current_profile = np.zeros(self.n_genes)
 
-    def init_state(self):
-        return KDTreeSelector.State(self.n_genes)
-
-    def select_best(self, state: State, target: np.array):
-        if state.weight == 0:
-            step_target = target
+    def select_best(self):
+        if self.num_selected == 0:
+            step_target = self.target_profile
         else:
-            step_target = target + (1 / state.weight) * (target - state.vector)
+            step_target = self.target_profile + (1 / self.num_selected) * (self.target_profile - self.current_profile)
 
         _, index = self.tree.query(step_target)
         return index
 
-    def add_element(self, state, selected):
-        state.vector = (state.vector * state.weight + self.dense_data[selected, :].A1) / (state.weight + 1)
-        state.weight += 1
-        return state
+    def add_element(self, selected):
+        self.current_profile = (self.current_profile * self.num_selected + self.dense_data[selected, :].A1) / (self.num_selected + 1)
+        self.num_selected += 1
 
-    def remove_element(self, state, selected):
-        full = state.vector * state.weight
+    def remove_element(self, selected):
+        full = self.current_profile * self.num_selected
         full -= self.dense_data[selected, :].A1
-        state.weight -= 1
-        state.vector = full / state.weight
-        return state
+        self.num_selected -= 1
+        self.current_profile = full / self.num_selected
 
     def map_to_types(self, selected):
-        return [np.where(self.types == self.sc_data.obs[self.cell_type_var][index])[0][0] for index in selected]
-
-    def map_to_names(self, selected):
-        return self.sc_data.obs[self.cell_type_var][selected]
+        return self.sc_data.anndata.obs[self.cell_type_var][selected]

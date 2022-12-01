@@ -8,7 +8,7 @@ from scstmatch.util import Timer
 from .matcher import Matcher
 
 
-class SPOTLightMatcher(Matcher):
+class SpotNMatch(Matcher):
     def __init__(self):
         super().__init__()
 

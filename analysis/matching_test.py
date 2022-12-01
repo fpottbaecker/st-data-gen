@@ -12,7 +12,7 @@ ST_FILE = "../data/st/hca_harvard_donor_H6.st.h5ad"
 
 
 def matching_test():
-    matcher = SPOTLightMatcher()
+    matcher = SpotNMatch()
     print(matcher.match(SingleCellDataset.read(SC_FILE), SpatialTranscriptomicsDataset.read(ST_FILE)))
     print(f"{basename(SC_FILE)} => {basename(ST_FILE)}")
 

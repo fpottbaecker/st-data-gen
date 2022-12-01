@@ -9,7 +9,7 @@ import pandas as pd
 from scipy.stats import ttest_ind
 
 from scstmatch.data import SingleCellDataset, SpatialTranscriptomicsDataset
-from scstmatch.matching import SPOTLightMatcher
+from scstmatch.matching import SpotNMatch
 
 FILE_A = "../data/reference/hca_sanger_gender_Female.sc.h5ad"
 FILE_B = "../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad"
@@ -23,9 +23,9 @@ COLUMNS = {
     ("Harvard", "V2", "M"): "../data/reference/hca_harvard_gender_Male_-endothelial.sc.h5ad",
     ("Sanger", "full", "F"): "../data/reference/hca_sanger_gender_Female.sc.h5ad",
     ("Sanger", "full", "M"): "../data/reference/hca_sanger_gender_Male.sc.h5ad",
-    ("Harvard", "full", "H6"): "../data/reference/hca_harvard_donor_H6.sc.h5ad",
-    ("Sanger", "full", "D2"): "../data/reference/hca_sanger_donor_D2.sc.h5ad",
-    "EVERYTHING": "../data/.sources/hca.sc.h5ad",
+    # ("Harvard", "full", "H6"): "../data/reference/hca_harvard_donor_H6.sc.h5ad",
+    # ("Sanger", "full", "D2"): "../data/reference/hca_sanger_donor_D2.sc.h5ad",
+    # "EVERYTHING": "../data/.sources/hca.sc.h5ad",
 }
 
 ROWS = {
@@ -46,7 +46,7 @@ def generate_cell(column, row):
     print(f"BEGIN {column}, {row}")
     reference = SingleCellDataset.read(column_path)
     target = SpatialTranscriptomicsDataset.read(row_path)
-    result = SPOTLightMatcher().match(reference, target)
+    result = SpotNMatch().match(reference, target)
     print(f"END {column}, {row}")
     return column, row, result
 
@@ -55,7 +55,7 @@ def generate_column(rows, head):
     header, head_path = head
     print(f"BEGIN {header}")
     reference = SingleCellDataset.read(head_path)
-    matcher = SPOTLightMatcher()
+    matcher = SpotNMatch()
     result = []
     for _, path in rows.items():
         target = SpatialTranscriptomicsDataset.read(path)
@@ -64,15 +64,6 @@ def generate_column(rows, head):
     print(f"END {header}")
     del reference
     return result
-
-
-def identify_best(data, column, element):
-    column = data[column]
-    if element != column.max():
-        return f"{element:0.3f}"
-    else:
-        return f"\\emph{{{element:0.3f}}}"
-
 
 def generate_table(rows, columns):
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
@@ -85,21 +76,15 @@ def generate_table(rows, columns):
         df.index.name = "Target"
         df.columns.name = "Reference"
 
-    #formatters = map(lambda x: partial(identify_best, df, x), range(0, df.shape[1]))
-
-    # .style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True, clines="skip-last;index")
-        print(df.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True, clines="skip-last;index"))
+    print(df.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True, clines="skip-last;index"))
 
 
 def generate_data():
     pairs = {
-        "match": ("EVERYTHING", ("Harvard", "full", "F")),
-        "mismatch": (("Harvard", "full", "M"), ("Harvard", "full", "F")),
-        "H6": (("Harvard", "full", "H6"), ("Harvard", "full", "F")),
-        "D2": (("Sanger", "full", "D2"), ("Harvard", "full", "F")),
-        #"none/V2": ("F(h) -endothelial", "H6(f)"),
-        #"gender/V1": ("M(h) -muscles", "H6(f)"),
-        #"gender/V2": ("M(h) -endothelial", "H6(f)"),
+        "match": (("Harvard", "full", "F"), ("Harvard", "full", "F")),
+        "mismatch": (("Sanger", "full", "M"), ("Harvard", "full", "F")),
+        # "H6": (("Harvard", "full", "H6"), ("Harvard", "full", "F")),
+        # "D2": (("Sanger", "full", "D2"), ("Harvard", "full", "F")),
     }
 
     results = {}
@@ -113,7 +98,7 @@ def generate_data():
         print(label)
         reference = SingleCellDataset.read(COLUMNS[paired[0]])
         target = SpatialTranscriptomicsDataset.read(ROWS[paired[1]])
-        result = SPOTLightMatcher().match(reference, target)
+        result = SpotNMatch().match(reference, target)
         results[label] = result[5]
         vresults[label] = result[3]
 
@@ -131,7 +116,7 @@ def generate_data():
     plt.set_xlabel("fraction of residuals explained")
     #plt.set_title("filter-genes = none (HCA dataset)")
     fig.show()
-    #fig.savefig("filter_none.pdf")
+    fig.savefig("filter_none.pdf")
 
     fig = plot.figure(figsize=(8, 3), dpi=300)
     fig.subplots_adjust(left=0.05, right=0.95, bottom=0.15)
@@ -142,7 +127,7 @@ def generate_data():
     # plt.set_xlabel("mismatch")
     plt.set_xlabel("fraction of residuals explained")
     #plt.set_title("filter-genes = evaluate (HCA dataset)")
-    #fig.savefig("filter_evaluate.pdf")
+    fig.savefig("filter_evaluate.pdf")
 
 
 if __name__ == "__main__":

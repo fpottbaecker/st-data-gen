@@ -1,6 +1,6 @@
-__all__ = ["Matcher", "DisentanglementMatcher", "GeneIntersectionMatcher", "SPOTLightMatcher"]
+__all__ = ["Matcher", "DisentanglementMatcher", "GeneIntersectionMatcher", "SpotNMatch"]
 
 from .matcher import Matcher
 from .gene_intersection_matcher import GeneIntersectionMatcher
-from .spotlight_matcher import SPOTLightMatcher
+from .spotnmatch import SpotNMatch
 from .disentanglement_matcher import DisentanglementMatcher
