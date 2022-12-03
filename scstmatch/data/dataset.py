@@ -33,10 +33,15 @@ class DatasetCache:
             raise ValueError("Cannot generate cache path for in memory dataset")
         return self.dataset.source_path
 
+    def directory(self):
+        dirname = os.path.dirname(self.source_path())
+        filename = os.path.basename(self.source_path())
+        return f"{dirname}/.caches/{filename}.{sha256_for_file(self.source_path())}"
+
     def path_for(self, key):
         dirname = os.path.dirname(self.source_path())
         filename = os.path.basename(self.source_path())
-        return f"{dirname}/.caches/{filename}.{sha256_for_file(self.source_path())}/{key}.pickle"
+        return f"{self.directory()}/{key}.pickle"
 
     def __getitem__(self, key):
         path = self.path_for(key)
