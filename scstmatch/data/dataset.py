@@ -6,9 +6,17 @@ from scstmatch.util import load_pickle, pickle_to_file, sha256_for_file
 
 
 class Dataset:
+    """
+
+    """
     anndata: ad.AnnData
 
-    def __init__(self, anndata: ad.AnnData, source_path=None):
+    def __init__(self, anndata: ad.AnnData, source_path: str = None):
+        """
+        Create a generic dataset
+        :param anndata: the AnnData object to represent
+        :param source_path: the path where the AnnData object was loaded from
+        """
         self.anndata = anndata
         self.source_path = source_path
         self.cache = DatasetCache(self)

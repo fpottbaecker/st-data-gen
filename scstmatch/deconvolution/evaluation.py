@@ -19,8 +19,9 @@ def match_results(actual: pd.DataFrame, predicted: pd.DataFrame):
 
 def evaluate_jsd(target: SpatialTranscriptomicsDataset, predicted: pd.DataFrame):
     actual, predicted = match_results(target.anndata.obsm["Y"], predicted)
-
-    return sp.spatial.distance.jensenshannon(actual, predicted, axis=1)
+    dists = sp.spatial.distance.jensenshannon(actual, predicted, axis=1)
+    dists[np.isnan(dists)] = 0
+    return dists
 
 
 def evaluate_rmse(target: SpatialTranscriptomicsDataset, predicted: pd.DataFrame):
