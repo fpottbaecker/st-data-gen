@@ -23,6 +23,7 @@ COLUMNS = {
     ("Harvard", "V2", "M"): "../data/reference/hca_harvard_gender_Male_-endothelial.sc.h5ad",
     ("Sanger", "full", "F"): "../data/reference/hca_sanger_gender_Female.sc.h5ad",
     ("Sanger", "full", "M"): "../data/reference/hca_sanger_gender_Male.sc.h5ad",
+    ("Sanger", "V1", "M"): "../data/reference/hca_sanger_gender_Male_-muscles.sc.h5ad",
     # ("Harvard", "full", "H6"): "../data/reference/hca_harvard_donor_H6.sc.h5ad",
     # ("Sanger", "full", "D2"): "../data/reference/hca_sanger_donor_D2.sc.h5ad",
     # "EVERYTHING": "../data/.sources/hca.sc.h5ad",
@@ -82,7 +83,7 @@ def generate_table(rows, columns):
 def generate_data():
     pairs = {
         "match": (("Harvard", "full", "F"), ("Harvard", "full", "F")),
-        "mismatch": (("Sanger", "full", "M"), ("Harvard", "full", "F")),
+        "mismatch": (("Sanger", "V1", "M"), ("Harvard", "full", "F")),
         # "H6": (("Harvard", "full", "H6"), ("Harvard", "full", "F")),
         # "D2": (("Sanger", "full", "D2"), ("Harvard", "full", "F")),
     }
@@ -98,7 +99,7 @@ def generate_data():
         print(label)
         reference = SingleCellDataset.read(COLUMNS[paired[0]])
         target = SpatialTranscriptomicsDataset.read(ROWS[paired[1]])
-        result = SpotNMatch().match(reference, target)
+        result = SpotNMatch(reference).match(target)
         results[label] = result[5]
         vresults[label] = result[3]
 
@@ -106,11 +107,11 @@ def generate_data():
     vp = ttest_ind(vresults["match"], vresults["mismatch"], alternative="greater")
     print(p, vp)
 
-    fig = plot.figure(figsize=(8, 3), dpi=300)
-    fig.subplots_adjust(left=0.05, right=0.95, bottom=0.15)
+    fig = plot.figure(figsize=(4, 3), dpi=300)
+    fig.subplots_adjust(left=0.075, right=0.95, bottom=0.15)
     plt = fig.add_subplot()
     plt.boxplot(results.values(), whis=1.5, showfliers=True, labels=results.keys(), vert=False)
-    plot.xlim(0, 1)
+    #plot.xlim(0, 1)
     plot.yticks(rotation=90, va="center")
     #plt.set_xlabel("mismatch")
     plt.set_xlabel("fraction of residuals explained")
@@ -118,11 +119,11 @@ def generate_data():
     fig.show()
     fig.savefig("filter_none.pdf")
 
-    fig = plot.figure(figsize=(8, 3), dpi=300)
-    fig.subplots_adjust(left=0.05, right=0.95, bottom=0.15)
+    fig = plot.figure(figsize=(4, 3), dpi=300)
+    fig.subplots_adjust(left=0.075, right=0.95, bottom=0.15)
     plt = fig.add_subplot()
     plt.boxplot(vresults.values(), whis=1.5, showfliers=True, labels=vresults.keys(), vert=False)
-    plot.xlim(0, 1)
+    #plot.xlim(0, 1)
     plot.yticks(rotation=90, va="center")
     # plt.set_xlabel("mismatch")
     plt.set_xlabel("fraction of residuals explained")

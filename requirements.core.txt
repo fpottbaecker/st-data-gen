@@ -1,0 +1,10 @@
+anndata==0.8.0
+antisplodge==0.2.1
+jupyter==1.0.0
+matplotlib==3.5.3
+numpy==1.23.2
+pandas==1.4.4
+scanpy==1.9.1
+scikit-learn==1.1.2
+scipy==1.9.1
+tqdm==4.64.1
