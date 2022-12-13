@@ -90,4 +90,14 @@ class IntegralDeconvolver(Deconvolver):
 
             predicted.at[spot, self.reference_cell_types] = self.selected_to_profile(all_selected, False)
 
+        if self.debug:
+            print(f"Step hits (%)")
+            print(hits * 100.0 / spots.size)
+            print(f"Full hits (%)")
+            print(cumulative_hits * 100.0 / spots.size)
+            print("Divergence from randomness")
+            print(((hits / spots.size).cumprod(axis=1) - (cumulative_hits / spots.size)) * 100.0)
+            print(f"Exceeding counts (%)")
+            print(exceeds * 100.0 / spots.size)
+
         return predicted
