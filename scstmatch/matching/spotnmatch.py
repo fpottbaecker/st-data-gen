@@ -103,16 +103,12 @@ class SpotNMatch(Matcher):
         vunexplained_residuals = 1 - (vresiduals / vtotals)
         xunexplained_residuals = 1 - (xresiduals / vtotals)
 
-        # print(f"1) {vunexplained_residuals.tolist()}")
+
         vresult = 1 - (np.sum(vresiduals) / np.sum(vtotals))
-        # print(vresult)
-
-        # print(f"2) {xunexplained_residuals.tolist()}")
         xresult = 1 - (np.sum(xresiduals) / np.sum(vtotals))
-        # print(xresult)
-
-        # print(f"old) {unexplained_residuals.tolist()}")
-
         result = 1 - (np.sum(residuals) / np.sum(totals))
         # print(result)
-        return vresult, xresult, result, vunexplained_residuals, xunexplained_residuals, unexplained_residuals
+
+        # NOTE: This is the extended return value setup, which reduced training and runtime for full evaluation.
+        # return vresult, xresult, result, vunexplained_residuals, xunexplained_residuals, unexplained_residuals
+        return vunexplained_residuals
