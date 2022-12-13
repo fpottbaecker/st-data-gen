@@ -8,18 +8,21 @@ from .matcher import Matcher
 
 
 class DisentanglementMatcher(Matcher):
-    def __init__(self):
-        super().__init__()
+    """
+    Experimental matcher based on ICA, unfinished
+    """
+    def __init__(self, reference: SingleCellDataset):
+        super().__init__(reference)
 
-    def match(self, reference: SingleCellDataset, target: SpatialTranscriptomicsDataset) -> float:
-        sc_data = reference.anndata
+    def match(self, target: SpatialTranscriptomicsDataset) -> float:
+        sc_data = self.reference.anndata
         st_data = target.anndata
 
         scanpy.pp.pca(st_data)
         scanpy.pl.pca(st_data)
         scanpy.pl.pca_variance_ratio(st_data)
 
-        cell_types = np.unique(sc_data.obs[reference.cell_type_column])
+        cell_types = np.unique(sc_data.obs[self.reference.cell_type_column])
         n_types = len(cell_types)
 
         bss = FastICA(n_components=n_types, max_iter=400)
@@ -39,5 +42,7 @@ class DisentanglementMatcher(Matcher):
         plt.scatter(two_data[:, 0], two_data[:, 1])
         plt.scatter(two_data_ref[:, 0], two_data_ref[:, 1], color="red")
         fig.show()
+
+        # TODO: Map scaled component values back to gene values or vice versa
 
         return np.random.uniform()

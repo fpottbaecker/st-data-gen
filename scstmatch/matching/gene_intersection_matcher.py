@@ -3,13 +3,17 @@ from .matcher import Matcher
 
 
 class GeneIntersectionMatcher(Matcher):
-    def __init__(self):
-        super().__init__()
+    """
+    Prototypical matcher using the gene set overlap
+    """
+    def __init__(self, reference: SingleCellDataset):
+        super().__init__(reference)
 
-    def match(self, reference: SingleCellDataset, target: SpatialTranscriptomicsDataset) -> float:
-        sc_data = reference.anndata
+    def _match(self, target: SpatialTranscriptomicsDataset) -> float:
+        sc_data = self.reference.anndata
         st_data = target.anndata
 
+        # TODO: identify HVG or marker genes
         sc_genes = sc_data.var_names
         st_genes = st_data.var_names
 

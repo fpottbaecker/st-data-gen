@@ -9,6 +9,9 @@ from .matcher import Matcher
 
 
 class SpotNMatch(Matcher):
+    """
+    Implementation of the SPotNMatch data matching method
+    """
     def __init__(self, reference: SingleCellDataset):
         super().__init__(reference)
 
@@ -20,18 +23,18 @@ class SpotNMatch(Matcher):
         V = sc_data.X.T
         H = np.zeros(shape=(len(cell_types), sc_data.n_obs), dtype="float32")
         W = None
-        timer.stop("init train")
+        timer.restart("init train")
         if self.reference.cache["SPOTLightMatcher"] is None:
             # Seed respective topics
             for ct in cell_types:
                 H[np.where(cell_types == ct), sc_data.obs[self.reference.cell_type_column] == ct] = 1
-            timer.stop("seed H")
+            timer.restart("seed H")
             sc_data.layers["log1p"] = scanpy.pp.normalize_total(sc_data, inplace=False, target_sum=1e6)["X"]
             scanpy.pp.log1p(sc_data, layer="log1p")
             # Identify marker genes and seed genes
             scanpy.tl.rank_genes_groups(sc_data, groupby=self.reference.cell_type_column, use_raw=False, layer="log1p",
                                         method="t-test", key_added="ranks")
-            timer.stop("rank genes")
+            timer.restart("rank genes")
             is_marker = np.full(sc_data.n_vars, False)
             for ct in cell_types:
                 markers = sc_data.uns["ranks"]["names"][ct][sc_data.uns["ranks"]["scores"][ct] > 25]
@@ -50,16 +53,16 @@ class SpotNMatch(Matcher):
                 scores = all_scores[relevant]
                 adjusted = (scores / np.max(scores)) * 1e6
                 W[self.all_markers.get_indexer(markers), np.where(cell_types == ct)] = adjusted
-            timer.stop("seed W")
+            timer.restart("seed W")
             nmf = NMF(len(cell_types), init="custom", max_iter=500, tol=1e-2, solver="cd")
             self.W = nmf.fit_transform(X=V[is_marker, :], W=W, H=H)
             H = nmf.components_
-            timer.stop(f"NMF ({nmf.n_iter_} it)")
+            timer.restart(f"NMF ({nmf.n_iter_} it)")
             self.reference.cache["SPOTLightMatcher"] = (self.all_markers, self.W)
-            timer.stop("save")
+            timer.restart("save")
         else:
             self.all_markers, self.W = self.reference.cache["SPOTLightMatcher"]
-            timer.stop("load")
+            timer.restart("load")
 
     def _match(self, target: SpatialTranscriptomicsDataset) -> float:
         timer = Timer()
@@ -72,15 +75,17 @@ class SpotNMatch(Matcher):
             scanpy.pp.log1p(st_data, layer="log1p")
         if "highly_variable" not in st_data.var:
             scanpy.pp.highly_variable_genes(st_data, layer="log1p", flavor="seurat")
-            timer.stop("hvg")
+            timer.restart("hvg")
         st_markers = np.isin(st_data.var_names, self.all_markers)
         # find H', such that V_ = W x H'
         V_ = st_data.X.T[st_markers, :]
+        # filter before evaluation
         vV_ = st_data.X[:, np.array(st_data.var.highly_variable) & st_markers].T
 
         residuals = np.zeros(st_data.n_obs)
         solutions = np.zeros(shape=(st_data.n_obs, len(cell_types)))
 
+        # filter before NNLS fit
         xresiduals = np.zeros(st_data.n_obs)
         xsolutions = np.zeros(shape=(st_data.n_obs, len(cell_types)))
 
@@ -91,7 +96,7 @@ class SpotNMatch(Matcher):
         for i in range(st_data.n_obs):
             solutions[i], residuals[i] = nnls(self.W, V_.getcol(i).A.flatten())
             xsolutions[i], xresiduals[i] = nnls(self.W[highly_variable_markers], vV_.getcol(i).A.flatten())
-        timer.stop("nnls")
+        timer.restart("nnls")
 
         prediction = np.dot(self.W, solutions.T)
 

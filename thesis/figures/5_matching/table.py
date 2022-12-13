@@ -11,33 +11,33 @@ from scstmatch.matching import SpotNMatch
 
 # NOTE: This File requires a modification of the SpotNMatch class to return all values, not just the v scores
 
-FILE_A = "../data/reference/hca_sanger_gender_Female.sc.h5ad"
-FILE_B = "../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad"
+FILE_A = "../../../data/reference/hca_sanger_gender_Female.sc.h5ad"
+FILE_B = "../../../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad"
 
 COLUMNS = {
-    ("Harvard", "full", "F"): "../data/reference/hca_harvard_gender_Female.sc.h5ad",
-    ("Harvard", "full", "M"): "../data/reference/hca_harvard_gender_Male.sc.h5ad",
-    ("Harvard", "V1", "F"): "../data/reference/hca_harvard_gender_Female_-muscles.sc.h5ad",
-    ("Harvard", "V1", "M"): "../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad",
-    ("Harvard", "V2", "F"): "../data/reference/hca_harvard_gender_Female_-endothelial.sc.h5ad",
-    ("Harvard", "V2", "M"): "../data/reference/hca_harvard_gender_Male_-endothelial.sc.h5ad",
-    ("Sanger", "full", "F"): "../data/reference/hca_sanger_gender_Female.sc.h5ad",
-    ("Sanger", "full", "M"): "../data/reference/hca_sanger_gender_Male.sc.h5ad",
-    ("Sanger", "V1", "M"): "../data/reference/hca_sanger_gender_Male_-muscles.sc.h5ad",
+    ("Harvard", "full", "F"): "../../../data/reference/hca_harvard_gender_Female.sc.h5ad",
+    ("Harvard", "full", "M"): "../../../data/reference/hca_harvard_gender_Male.sc.h5ad",
+    ("Harvard", "V1", "F"): "../../../data/reference/hca_harvard_gender_Female_-muscles.sc.h5ad",
+    ("Harvard", "V1", "M"): "../../../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad",
+    ("Harvard", "V2", "F"): "../../../data/reference/hca_harvard_gender_Female_-endothelial.sc.h5ad",
+    ("Harvard", "V2", "M"): "../../../data/reference/hca_harvard_gender_Male_-endothelial.sc.h5ad",
+    ("Sanger", "full", "F"): "../../../data/reference/hca_sanger_gender_Female.sc.h5ad",
+    ("Sanger", "full", "M"): "../../../data/reference/hca_sanger_gender_Male.sc.h5ad",
+    ("Sanger", "V1", "M"): "../../../data/reference/hca_sanger_gender_Male_-muscles.sc.h5ad",
     # ("Harvard", "full", "H6"): "../data/reference/hca_harvard_donor_H6.sc.h5ad",
     # ("Sanger", "full", "D2"): "../data/reference/hca_sanger_donor_D2.sc.h5ad",
     # "EVERYTHING": "../data/.sources/hca.sc.h5ad",
 }
 
 ROWS = {
-    ("Harvard", "full", "F"): "../data/st/hca_harvard_donor_H6.st.h5ad",
-    ("Harvard", "full", "M"): "../data/st/hca_harvard_donor_H3.st.h5ad",
-    ("Harvard", "V1", "F"): "../data/st/hca_harvard_donor_H6_-muscles.st.h5ad",
-    ("Harvard", "V1", "M"): "../data/st/hca_harvard_donor_H3_-muscles.st.h5ad",
-    ("Harvard", "V2", "F"): "../data/st/hca_harvard_donor_H6_-endothelial.st.h5ad",
-    ("Harvard", "V2", "M"): "../data/st/hca_harvard_donor_H3_-endothelial.st.h5ad",
-    ("Sanger", "full", "F"): "../data/st/hca_sanger_donor_D5.st.h5ad",
-    ("Sanger", "full", "M"): "../data/st/hca_sanger_donor_D2.st.h5ad",
+    ("Harvard", "full", "F"): "../../../data/st/hca_harvard_donor_H6.st.h5ad",
+    ("Harvard", "full", "M"): "../../../data/st/hca_harvard_donor_H3.st.h5ad",
+    ("Harvard", "V1", "F"): "../../../data/st/hca_harvard_donor_H6_-muscles.st.h5ad",
+    ("Harvard", "V1", "M"): "../../../data/st/hca_harvard_donor_H3_-muscles.st.h5ad",
+    ("Harvard", "V2", "F"): "../../../data/st/hca_harvard_donor_H6_-endothelial.st.h5ad",
+    ("Harvard", "V2", "M"): "../../../data/st/hca_harvard_donor_H3_-endothelial.st.h5ad",
+    ("Sanger", "full", "F"): "../../../data/st/hca_sanger_donor_D5.st.h5ad",
+    ("Sanger", "full", "M"): "../../../data/st/hca_sanger_donor_D2.st.h5ad",
 }
 
 
@@ -135,4 +135,4 @@ def generate_data():
 
 if __name__ == "__main__":
     generate_data()
-    generate_table(ROWS, COLUMNS)
+    #generate_table(ROWS, COLUMNS)
