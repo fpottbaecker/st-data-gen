@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 from scstmatch.data import Dataset
 
 
@@ -15,6 +17,9 @@ class InputProxy:
 
 
 class OptionsProxy:
+    """
+    Utility class to manage options and defaults
+    """
     def __init__(self, defaults: dict):
         self._defaults = defaults
         self._options = dict()
@@ -48,8 +53,17 @@ class OptionsProxy:
         return self.defaults.keys()
 
 
-class Generator:
+class Generator(ABC):
+    """
+    Base class for data generators
+    """
     def __init__(self, inputs=None, defaults=None, **options):
+        """
+        Initialize the generator
+        :param inputs: A dictionary of inputs
+        :param defaults: The default options for this generator
+        :param options: The user supplied options
+        """
         self.inputs = InputProxy(inputs or dict())
         self._update_inputs()
         self.options = OptionsProxy(defaults or dict())
@@ -63,12 +77,25 @@ class Generator:
         pass
 
     def reconfigure(self, **options):
+        """
+        Updates the user supplied options of this generator
+        """
         self.options.update(options)
 
+    @abstractmethod
     def _generate(self) -> Dataset:
+        """
+        Internal generation method
+        :return: A dataset generated based on the inputs and current options
+        """
         pass
 
     def generate(self, **overrides) -> Dataset:
+        """
+        Internal generation method
+        :param overrides: the option overrides to use
+        :return: A dataset generated based on the inputs and current and override options
+        """
         old_options = self.options
         self.options = old_options.override(overrides)
         data = self._generate()

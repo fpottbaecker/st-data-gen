@@ -10,6 +10,9 @@ from .util import generate_expression_profile
 
 
 class SingleCellGenerator(Generator):
+    """
+    Single cell data generator based on fully synthetic profiles
+    """
     rng: np.random.Generator
 
     def __init__(self, cell_spec: CellTypeDataset, **options):

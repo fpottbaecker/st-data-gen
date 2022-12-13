@@ -7,6 +7,9 @@ from .generator import Generator
 
 
 class CellTypeGenerator(Generator):
+    """
+    Generator for synthetic tissue profiles
+    """
     rng: np.random.Generator
 
     def __init__(self, **options):

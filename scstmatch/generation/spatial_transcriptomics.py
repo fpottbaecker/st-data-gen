@@ -10,6 +10,9 @@ from .util import generate_expression_profile, select_cells
 
 
 class SpatialTranscriptomicsGenerator(Generator):
+    """
+    Spatial Transcriptomics generator based on fully synthetic profiles
+    """
     rng: np.random.Generator
 
     def __init__(self, cell_spec: CellTypeDataset, **options):

@@ -10,6 +10,9 @@ from .util import select_cells
 
 
 class SC2STGenerator(Generator):
+    """
+    Sampled Spatial Transcriptomics generator
+    """
     rng: np.random.Generator
 
     def __init__(self, sc_data: SingleCellDataset, **options):
