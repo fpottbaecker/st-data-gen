@@ -17,18 +17,18 @@ sources:
         normalize: 1e6
         split: [0.6, 0.4]
       definitions:
+        invalid: &hca-filter-invalid
+          action: filter
+          -obs:
+            cell_type: [ "NotAssigned", "doublets" ]
         harvard: &hca-filter-harvard
           action: filter
           obs:
             cell_source: "Harvard-Nuclei"
-          -obs:
-            cell_type: [ "NotAssigned", "doublets" ]
         sanger: &hca-filter-sanger
           action: filter
           obs:
             cell_source: "Sanger-Nuclei"
-          -obs:
-            cell_type: [ "NotAssigned", "doublets" ]
         drops: &hca-drops
           action: filter
           include_original: false
@@ -39,16 +39,12 @@ sources:
             -endothelial:
               -obs:
                 cell_type: [ "Endothelial" ]
-  spatial:
-    human-heart-10x-st:
-      url: https://cf.10xgenomics.com/samples/spatial-exp/1.1.0/V1_Human_Heart/V1_Human_Heart_filtered_feature_bc_matrix.h5
-      type: spatial
 
 definitions:
   visium1: &synthesize-visium1
     action: synthesize_spatial
-    counts: [ 5000, 9000 ]
-    cells: [ 5, 15 ]
+    #counts: [ 5000, 9000 ]
+    #cells: [ 5, 15 ]
 
 
 variants:
@@ -56,6 +52,7 @@ variants:
     basename: hca_harvard
     source: hca
     steps:
+      - *hca-filter-invalid
       - *hca-filter-harvard
       - action: split
         by: "gender"
@@ -65,6 +62,7 @@ variants:
     basename: hca_harvard
     source: hca
     steps:
+      - *hca-filter-invalid
       - *hca-filter-harvard
       - action: split
         by: "age_group"
@@ -74,6 +72,7 @@ variants:
     basename: hca_harvard
     source: hca
     steps:
+      - *hca-filter-invalid
       - *hca-filter-harvard
       - action: split
         by: "donor"
@@ -85,6 +84,7 @@ variants:
     basename: hca_sanger
     source: hca
     steps:
+      - *hca-filter-invalid
       - *hca-filter-sanger
       - action: split
         by: "gender"
@@ -94,6 +94,7 @@ variants:
     basename: hca_sanger
     source: hca
     steps:
+      - *hca-filter-invalid
       - *hca-filter-sanger
       - action: split
         by: "age_group"
@@ -103,6 +104,7 @@ variants:
     basename: hca_sanger
     source: hca
     steps:
+      - *hca-filter-invalid
       - *hca-filter-sanger
       - action: split
         by: "donor"
