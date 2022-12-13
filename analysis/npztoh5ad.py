@@ -1,13 +1,7 @@
-from math import inf
-from scipy.sparse import csr_matrix
-
 import anndata as ad
 import numpy as np
 import pandas as pd
-import scanpy as sc
-import scipy as sp
-from tqdm import tqdm
-from scipy.spatial import KDTree
+from scipy.sparse import csr_matrix
 
 NPZ_FILE = "../data/Sanger_Nuclei_small_test.npz"
 AD_FILE = "../data/Sanger_Nuclei_small_test.st.h5ad"

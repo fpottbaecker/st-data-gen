@@ -9,7 +9,8 @@ CELLS_PER_SPOT = 10  # TODO: Maybe have a range here
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate a spatial transcriptomics dataset from a single cell dataset.")
+    parser = argparse.ArgumentParser(
+        description="Generate a spatial transcriptomics dataset from a single cell dataset.")
     parser.add_argument("-i", "--in", dest="in_file", help="The path to the input single cell dataset",
                         required=True, type=pathlib.Path)
     parser.add_argument("-o", "--out", dest="out_file", help="The output file",

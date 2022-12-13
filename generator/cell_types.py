@@ -23,11 +23,13 @@ def main():
                         type=int, default=NUMBER_OF_GENES)
     parser.add_argument("-m", "--markers", dest="n_marker", help="The number of marker genes per cell type",
                         type=int, default=NUMBER_OF_MARKER_GENES)
-    parser.add_argument("-b", "--baseline", dest="n_baseline", help="The number of baseline genes across all cell types",
+    parser.add_argument("-b", "--baseline", dest="n_baseline",
+                        help="The number of baseline genes across all cell types",
                         type=int, default=NUMBER_OF_BASELINE_GENES)
 
     args = parser.parse_args()
-    g = CellTypeGenerator(n_genes=args.n_genes, n_types=args.n_types, n_marker=args.n_marker, n_baseline=args.n_baseline)
+    g = CellTypeGenerator(n_genes=args.n_genes, n_types=args.n_types, n_marker=args.n_marker,
+                          n_baseline=args.n_baseline)
     g.generate().write(args.out_file)
 
 

@@ -1,9 +1,7 @@
-import itertools
 import multiprocessing
-import anndata as ad
 from functools import partial
-import matplotlib.pyplot as plot
 
+import matplotlib.pyplot as plot
 import numpy as np
 import pandas as pd
 from scipy.stats import ttest_ind
@@ -66,6 +64,7 @@ def generate_column(rows, head):
     del reference
     return result
 
+
 def generate_table(rows, columns):
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
         data = np.array(p.map(partial(generate_column, rows), columns.items()))
@@ -77,7 +76,8 @@ def generate_table(rows, columns):
         df.index.name = "Target"
         df.columns.name = "Reference"
 
-    print(df.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True, clines="skip-last;index"))
+    print(df.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True,
+                                                                                             clines="skip-last;index"))
 
 
 def generate_data():
@@ -111,11 +111,11 @@ def generate_data():
     fig.subplots_adjust(left=0.075, right=0.95, bottom=0.15)
     plt = fig.add_subplot()
     plt.boxplot(results.values(), whis=1.5, showfliers=True, labels=results.keys(), vert=False)
-    #plot.xlim(0, 1)
+    # plot.xlim(0, 1)
     plot.yticks(rotation=90, va="center")
-    #plt.set_xlabel("mismatch")
+    # plt.set_xlabel("mismatch")
     plt.set_xlabel("fraction of residuals explained")
-    #plt.set_title("filter-genes = none (HCA dataset)")
+    # plt.set_title("filter-genes = none (HCA dataset)")
     fig.show()
     fig.savefig("filter_none.pdf")
 
@@ -123,14 +123,14 @@ def generate_data():
     fig.subplots_adjust(left=0.075, right=0.95, bottom=0.15)
     plt = fig.add_subplot()
     plt.boxplot(vresults.values(), whis=1.5, showfliers=True, labels=vresults.keys(), vert=False)
-    #plot.xlim(0, 1)
+    # plot.xlim(0, 1)
     plot.yticks(rotation=90, va="center")
     # plt.set_xlabel("mismatch")
     plt.set_xlabel("fraction of residuals explained")
-    #plt.set_title("filter-genes = evaluate (HCA dataset)")
+    # plt.set_title("filter-genes = evaluate (HCA dataset)")
     fig.savefig("filter_evaluate.pdf")
 
 
 if __name__ == "__main__":
     generate_data()
-    #generate_table(ROWS, COLUMNS)
+    # generate_table(ROWS, COLUMNS)

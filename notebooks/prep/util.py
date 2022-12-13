@@ -1,19 +1,20 @@
-from urllib.request import urlopen
-from urllib.parse import unquote, urlparse
-from tqdm.auto import tqdm
+from functools import partial
 from os import stat
 from os.path import basename, isfile
-from functools import partial
 from tempfile import gettempdir
+from urllib.parse import unquote, urlparse
+from urllib.request import urlopen
 
-BLOCKSIZE=2**13
+from tqdm.auto import tqdm
+
+BLOCKSIZE = 2 ** 13
 
 
 def download(url, /, directory=None, filename=None):
     directory = directory or gettempdir()
     filename = filename or basename(unquote(urlparse(url).path))
     path = directory + "/" + filename
-    
+
     with tqdm(desc=filename, unit="iB", unit_scale=True, unit_divisor=1024) as progress:
         progress.set_postfix(status="connecting")
         with urlopen(url) as r:
@@ -29,5 +30,5 @@ def download(url, /, directory=None, filename=None):
                 for chunk in iter(partial(r.read, BLOCKSIZE), b""):
                     progress.update(f.write(chunk))
             progress.set_postfix(status="downloaded")
-    
+
     return path

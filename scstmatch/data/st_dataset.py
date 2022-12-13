@@ -1,4 +1,5 @@
 from os.path import splitext
+
 import anndata as ad
 import numpy as np
 import pandas as pd
@@ -34,4 +35,3 @@ class SpatialTranscriptomicsDataset(Dataset):
 
     def _write(self, path):
         self.anndata.write(path)
-

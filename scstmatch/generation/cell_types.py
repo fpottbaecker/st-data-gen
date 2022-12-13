@@ -2,8 +2,8 @@ import anndata as ad
 import numpy as np
 import pandas as pd
 
-from .generator import Generator
 from scstmatch.data import CellTypeDataset
+from .generator import Generator
 
 
 class CellTypeGenerator(Generator):

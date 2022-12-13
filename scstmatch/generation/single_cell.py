@@ -1,12 +1,12 @@
 import anndata as ad
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from scipy.sparse import csr_matrix
+from tqdm import tqdm
 
+from scstmatch.data import CellTypeDataset, SingleCellDataset
 from .generator import Generator
 from .util import generate_expression_profile
-from scstmatch.data import CellTypeDataset, SingleCellDataset
 
 
 class SingleCellGenerator(Generator):

@@ -1,5 +1,6 @@
-import anndata as ad
 from os.path import splitext
+
+import anndata as ad
 
 from .dataset import Dataset
 

@@ -13,4 +13,4 @@ def select_cells(n_cells, n_types, temperature: float, rng: np.random.Generator)
     # Assign temperatures
     p = np.full(n_types, fill_value=n_cells, dtype="float32") ** (np.arange(n_types, dtype="float32") * temperature)
     rng.shuffle(p)
-    return rng.choice(n_types, n_cells, p=p/p.sum(), replace=True)
+    return rng.choice(n_types, n_cells, p=p / p.sum(), replace=True)

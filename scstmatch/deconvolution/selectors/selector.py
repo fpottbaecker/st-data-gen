@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import Any
 
 import numpy as np
@@ -5,12 +6,13 @@ import numpy as np
 from scstmatch.data import SingleCellDataset
 
 
-class Selector:
+class Selector(ABC):
     sc_data: SingleCellDataset
 
     def __init__(self):
         pass
 
+    @abstractmethod
     def type_name(self):
         pass
 

@@ -1,9 +1,10 @@
-from functools import partial
-from h5py import File
-from math import floor, prod
 import multiprocessing
-import numpy as np
 import os
+from functools import partial
+from math import prod
+
+import numpy as np
+from h5py import File
 from scipy.sparse import bmat
 from tqdm.auto import tqdm
 
@@ -18,7 +19,7 @@ def tree(hdf5, /, indent=""):
         if callable(getattr(value, "items", None)):
             tree(value, indent + " |- ")
 
-            
+
 def _read_slice(file, name, sparse_format, transpose, slice):
     hdf5 = load(file)[name]
     data = hdf5[slice]
@@ -32,11 +33,11 @@ def _get_nproc():
         return len(os.sched_getaffinity(0))
     return multiprocessing.cpu_count()
 
-    
+
 def read_sparse_chunks(hdf5, /, sparse_format, transpose=False, n_proc=None):
     if hdf5.chunks is None:
         return sparse_format(hdf5[()])
-    
+
     n_proc = n_proc or _get_nproc()
     shape = np.array(hdf5.shape)
     chunk_size = np.array(hdf5.chunks)

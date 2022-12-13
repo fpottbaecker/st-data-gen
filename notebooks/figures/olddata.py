@@ -1,9 +1,5 @@
-
 import numpy as np
 import matplotlib.pyplot as plot
-from matplotlib import cm
-import cycler
-
 
 # DATA
 gene_counts = [1606, 95]
@@ -37,7 +33,6 @@ greedy_pca30_jsd = [0.1575, 0.6093, 0.6966, 0.7731, 0.8326]
 greedy_pca40_jsd = [0.1575, 0.6221, 0.7087, 0.7898, 0.8326]
 greedy_pca50_jsd = [0.1575, 0.6215, 0.7087, 0.8005, 0.8326]
 
-
 kdtree_95g_jsd = [0.0, 0.2736, 0.4048, 0.6243, 0.8326]
 kdtree_95g_step = [
     [83.23, 85.53, 86.3, 83.31, 83.32, 83.23, 83.44, 83.02, 83.15, 83.27],
@@ -63,7 +58,6 @@ kdtree_pca30_jsd = [0.0, 0.3425, 0.5848, 0.7414, 0.8326]
 kdtree_pca40_jsd = [0.0, 0.3425, 0.5848, 0.7731, 0.8326]
 kdtree_pca50_jsd = [0.0, 0.3425, 0.5895, 0.8326, 0.8326]
 
-
 fig = plot.figure(figsize=(10, 5), dpi=200)
 fig.subplots_adjust(left=0.2, right=0.95)
 plt = fig.add_subplot()
@@ -84,22 +78,22 @@ plt = fig.add_subplot()
 plt.set_xlabel("step")
 plt.set_ylabel("only correct picks by step [%]")
 plt.set_prop_cycle("color", plot.cm.tab20.colors)
-#plt.set_title("Overpicking per Step")
+# plt.set_title("Overpicking per Step")
 
 plt.plot(range(1, 11), np.transpose(greedy_95g_full), label=["greedy[1]", "greedy[2]"])
 plt.plot(range(1, 11), np.transpose(kdtree_95g_full), label=["kdtree[1]", "kdtree[2]"])
 plt.legend(title="method[iteration]")
 fig.savefig("integral_cumul_accuracy.pdf")
 
-
 fig = plot.figure(figsize=(10, 5), dpi=200)
 fig.subplots_adjust(left=0.075, right=0.89)
 plt = fig.add_subplot()
-plt.boxplot([baseline_jsd, kdtree_3kg_jsd, kdtree_95g_jsd, greedy_3kg_jsd, greedy_95g_jsd], whis=[0, 100], showfliers=False,
+plt.boxplot([baseline_jsd, kdtree_3kg_jsd, kdtree_95g_jsd, greedy_3kg_jsd, greedy_95g_jsd], whis=[0, 100],
+            showfliers=False,
             labels=["baseline", "kdtree (1606 genes)", "kdtree (95 genes)", "greedy (1606 genes)", "greedy (95 genes)"])
 plt.set_xlabel("method")
 plt.set_ylabel("JSD")
-#plt.set_title("Classifier Comparison (HCA dataset)")
+# plt.set_title("Classifier Comparison (HCA dataset)")
 plt.axhline(antisplodge_mean_jsd, linestyle="dashed", alpha=0.5, c="red")
 plt.text(x=5.55, y=antisplodge_mean_jsd + 0.01, s="AntiSplodge")
 
@@ -130,26 +124,26 @@ plt.boxplot([
     gender_match_missingB,
     gender_mismatch_missingA,
     gender_mismatch_missingB
-             ], whis=1.5, showfliers=True,
-            labels=[
-                "none",
-                "gender",
-                "age",
-                "both"
-                "-Cardiomyocytes",
-                "-Neuronal",
-                "gender\n-Cardiomyocytes",
-                "gender\n-Neuronal"])
-#plt.xticks(rotation=90)
+], whis=1.5, showfliers=True,
+    labels=[
+        "none",
+        "gender",
+        "age",
+        "both"
+        "-Cardiomyocytes",
+        "-Neuronal",
+        "gender\n-Cardiomyocytes",
+        "gender\n-Neuronal"])
+# plt.xticks(rotation=90)
 plt.set_xlabel("mismatch")
 plt.set_ylabel("fraction of residuals explained")
 plt.set_title("SPOTLite Scores (HCA dataset)")
-#plt.axhline(antisplodge_mean_jsd, linestyle="dashed", alpha=0.5, c="red")
-#plt.text(x=8.55, y=antisplodge_mean_jsd + 0.01, s="AntiSplodge")
+# plt.axhline(antisplodge_mean_jsd, linestyle="dashed", alpha=0.5, c="red")
+# plt.text(x=8.55, y=antisplodge_mean_jsd + 0.01, s="AntiSplodge")
 
-#plt.axhline(cell2location_mean_jsd, linestyle="dashed", alpha=0.5, c="blue")
-#plt.text(x=8.55, y=cell2location_mean_jsd + 0.01, s="Cell2Location")
+# plt.axhline(cell2location_mean_jsd, linestyle="dashed", alpha=0.5, c="blue")
+# plt.text(x=8.55, y=cell2location_mean_jsd + 0.01, s="Cell2Location")
 
-#plt.axhline(baseline_jsd[2], linestyle="dashed", alpha=0.5, c="green")
-#plt.text(x=8.55, y=baseline_jsd[2] + 0.01, s="baseline")
+# plt.axhline(baseline_jsd[2], linestyle="dashed", alpha=0.5, c="green")
+# plt.text(x=8.55, y=baseline_jsd[2] + 0.01, s="baseline")
 fig.show()

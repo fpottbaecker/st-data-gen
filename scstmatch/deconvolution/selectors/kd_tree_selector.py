@@ -50,7 +50,8 @@ class KDTreeSelector(Selector):
         return index
 
     def add_element(self, selected):
-        self.current_profile = (self.current_profile * self.num_selected + self.dense_data[selected, :].A1) / (self.num_selected + 1)
+        self.current_profile = (self.current_profile * self.num_selected + self.dense_data[selected, :].A1) / (
+                    self.num_selected + 1)
         self.num_selected += 1
 
     def remove_element(self, selected):

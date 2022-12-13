@@ -1,14 +1,12 @@
-
-import scanpy as sc
-import pandas as pd
 import numpy as np
-
+import pandas as pd
+import scanpy as sc
 from tqdm.auto import tqdm
 
 from scstmatch.data import SingleCellDataset
+from scstmatch.data import SpatialTranscriptomicsDataset
 from .deconvolver import Deconvolver
 from .selectors.selector import Selector
-from scstmatch.data import SpatialTranscriptomicsDataset
 
 
 class IntegralDeconvolver(Deconvolver):
@@ -93,4 +91,3 @@ class IntegralDeconvolver(Deconvolver):
             predicted.at[spot, self.reference_cell_types] = self.selected_to_profile(all_selected, False)
 
         return predicted
-

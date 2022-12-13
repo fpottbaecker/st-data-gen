@@ -1,12 +1,12 @@
 import anndata as ad
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 from scipy.sparse import csr_matrix
+from tqdm import tqdm
 
+from scstmatch.data import CellTypeDataset, SpatialTranscriptomicsDataset
 from .generator import Generator
 from .util import generate_expression_profile, select_cells
-from scstmatch.data import CellTypeDataset, SpatialTranscriptomicsDataset
 
 
 class SpatialTranscriptomicsGenerator(Generator):
@@ -33,7 +33,8 @@ class SpatialTranscriptomicsGenerator(Generator):
         n_genes = genes.size
         cell_data = pd.DataFrame(index=pd.RangeIndex(0, self.options.n_spots), dtype="int")
         gene_data = pd.DataFrame(index=genes, columns=[])
-        y_counts = pd.DataFrame(data=np.zeros(shape=(self.options.n_spots, n_types)), index=cell_data.index, columns=cell_types, dtype="int32")
+        y_counts = pd.DataFrame(data=np.zeros(shape=(self.options.n_spots, n_types)), index=cell_data.index,
+                                columns=cell_types, dtype="int32")
         data = pd.DataFrame(index=pd.RangeIndex(0, self.options.n_spots), columns=genes)
 
         gene_p = np.ndarray(shape=(n_types, n_genes), dtype="float32")

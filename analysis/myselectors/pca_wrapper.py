@@ -1,8 +1,8 @@
 import anndata as ad
 import numpy as np
+import pandas as pd
 import scanpy as sc
 from scipy.sparse import csr_matrix
-import pandas as pd
 
 __all__ = ['PCAWrapper', 'wrap_pca']
 
@@ -12,6 +12,7 @@ NUM_PCS = 50
 def wrap_pca(selector_klass):
     def wrap(sc_data):
         return PCAWrapper(sc_data, selector_klass)
+
     return wrap
 
 
@@ -21,7 +22,8 @@ class PCAWrapper:
     def __init__(self, sc_data, selector_klass, cell_type_var="cell_type"):
         self.sc_data = sc_data
         sc.pp.pca(sc_data)
-        self.pca_data = ad.AnnData(X=sc_data.obsm["X_pca"][:, 0:NUM_PCS], var=pd.DataFrame(index=range(NUM_PCS)), obs=sc_data.obs)
+        self.pca_data = ad.AnnData(X=sc_data.obsm["X_pca"][:, 0:NUM_PCS], var=pd.DataFrame(index=range(NUM_PCS)),
+                                   obs=sc_data.obs)
         self.pca_data.X = csr_matrix(self.pca_data.X)
         self.gene_matrix = sc_data.varm["PCs"][:, 0:NUM_PCS].T
         self.genes = sc_data.var.index

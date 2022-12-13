@@ -1,6 +1,6 @@
+import numpy as np
 import pandas as pd
 import scipy as sp
-import numpy as np
 
 from scstmatch.data import SpatialTranscriptomicsDataset
 
@@ -26,5 +26,5 @@ def evaluate_jsd(target: SpatialTranscriptomicsDataset, predicted: pd.DataFrame)
 
 def evaluate_rmse(target: SpatialTranscriptomicsDataset, predicted: pd.DataFrame):
     actual, predicted = match_results(target.anndata.obsm["Y"], predicted)
-    squared_errors = (actual - predicted)**2
+    squared_errors = (actual - predicted) ** 2
     return np.sqrt(np.mean(squared_errors, axis=1))

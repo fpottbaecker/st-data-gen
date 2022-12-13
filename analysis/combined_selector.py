@@ -1,13 +1,13 @@
 import os.path
-from math import inf
 
 import anndata as ad
 import numpy as np
 import pandas as pd
 import scanpy as sc
 import scipy as sp
-from tqdm import tqdm
 from scipy.spatial import KDTree
+from tqdm import tqdm
+
 import util
 from myselectors import *
 
@@ -26,7 +26,8 @@ def evaluate_jsd(actuals, predicteds):
     print(f"JSD: mean={dists.mean()}, quartiles={np.quantile(dists, [0.0, 0.25, 0.5, 0.75, 1.0])}")
 
 
-def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klasses=[KDTreeSelector, GreedyTreeSelector]):
+def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd,
+                        selector_klasses=[KDTreeSelector, GreedyTreeSelector]):
     sc.pp.normalize_total(st_data, target_sum=1)
     sc.pp.normalize_total(sc_data, target_sum=1)
 
@@ -82,7 +83,7 @@ def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klas
                 current = selector.add_element(current, selected)
 
                 selected_type = selector.map_to_types([selected])[0]
-                current_profile[selected_type] += 1/TREE_DEPTH
+                current_profile[selected_type] += 1 / TREE_DEPTH
                 all_hit &= excerpt.obsm["Y"][0, selected_type] > 0.0001
                 if all_hit:
                     cumulative_hits[iteration, step] += 1
@@ -99,7 +100,6 @@ def cell_based_analysis(sc_data, st_data, evaluators=evaluate_jsd, selector_klas
                 for selected in all_selected:
                     current = next_selector.add_element(current, selected)
                 current.vector = old_vector
-
 
         found_cells_types = selector.map_to_types(all_selected)
         [found_cell_types, counts] = np.unique(found_cells_types, return_counts=True)

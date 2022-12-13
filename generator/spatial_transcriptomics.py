@@ -10,7 +10,8 @@ CELLS_PER_SPOT = 10
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate a spatial transcriptomics dataset from a cell type specification.")
+    parser = argparse.ArgumentParser(
+        description="Generate a spatial transcriptomics dataset from a cell type specification.")
     parser.add_argument("-i", "--in", dest="in_file", help="The path to the input cell type specification",
                         required=True, type=pathlib.Path)
     parser.add_argument("-o", "--out", dest="out_file", help="The output file",

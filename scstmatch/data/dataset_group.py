@@ -1,6 +1,4 @@
-
 from collections.abc import Callable
-from anndata import AnnData
 
 from .dataset import Dataset
 

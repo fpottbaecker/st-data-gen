@@ -66,7 +66,8 @@ class GreedySelector(Selector):
         return best_type
 
     def add_element(self, selected):
-        self.current_profile = (self.num_selected * self.current_profile + self.means[selected].flatten()) / (self.num_selected + 1)
+        self.current_profile = (self.num_selected * self.current_profile + self.means[selected].flatten()) / (
+                    self.num_selected + 1)
         self.num_selected += 1
 
     def remove_element(self, selected):

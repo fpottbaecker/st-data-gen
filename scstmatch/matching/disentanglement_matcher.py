@@ -1,10 +1,10 @@
-from scstmatch.data import SingleCellDataset, SpatialTranscriptomicsDataset
-from .matcher import Matcher
-
-from sklearn.decomposition import FastICA
+import matplotlib.pyplot as plot
 import numpy as np
 import scanpy
-import matplotlib.pyplot as plot
+from sklearn.decomposition import FastICA
+
+from scstmatch.data import SingleCellDataset, SpatialTranscriptomicsDataset
+from .matcher import Matcher
 
 
 class DisentanglementMatcher(Matcher):
@@ -39,6 +39,5 @@ class DisentanglementMatcher(Matcher):
         plt.scatter(two_data[:, 0], two_data[:, 1])
         plt.scatter(two_data_ref[:, 0], two_data_ref[:, 1], color="red")
         fig.show()
-
 
         return np.random.uniform()
