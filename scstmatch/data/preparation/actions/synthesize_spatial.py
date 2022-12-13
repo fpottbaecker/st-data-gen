@@ -8,7 +8,7 @@ class SynthesizeSpatial(Action):
     counts: tuple[int, int]
     cells: tuple[int, int]
 
-    def __init__(self, /, counts, cells=None, **kwargs):
+    def __init__(self, /, counts=None, cells=None, **kwargs):
         super().__init__()
         self.counts = (counts[0], counts[1]) if cells is not None else (10000, 10000)
         self.cells = (cells[0], cells[1]) if cells is not None else (10, 10)

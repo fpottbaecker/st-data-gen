@@ -98,7 +98,7 @@ class IntegralDeconvolver(Deconvolver):
                     if current_profile[selected_type] > y_selected + 0.001:
                         exceeds[iteration, step] += 1
 
-            predicted.at[spot, self.reference_cell_types] = self.selected_to_profile(all_selected, False)
+            predicted.loc[spot, self.reference_cell_types] = self.selected_to_profile(all_selected, False)
 
         if self.debug:
             print(f"Step hits (%)")
