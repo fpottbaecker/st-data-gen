@@ -10,6 +10,9 @@ from .selectors.selector import Selector
 
 
 class IntegralDeconvolver(Deconvolver):
+    """
+    Implementation of cell picking with configurable selectors.
+    """
     iteration_count: int
     tree_depth: int
     debug: bool
@@ -17,6 +20,13 @@ class IntegralDeconvolver(Deconvolver):
     selector: Selector
 
     def __init__(self, reference: SingleCellDataset, selector: Selector, iteration_count=2, tree_depth=10, debug=False):
+        """
+        :param reference: The reference dataset to use
+        :param selector: The selection method to use
+        :param iteration_count: The number of iterations to perform
+        :param tree_depth: The number of cells to pick
+        :param debug: Enable verbose output
+        """
         super().__init__(reference)
         self.selector = selector
         self.iteration_count = iteration_count

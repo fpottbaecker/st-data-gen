@@ -7,6 +7,9 @@ from .selector import Selector
 
 
 class KDTreeSelector(Selector):
+    """
+    Implementation of the k-d tree based selector
+    """
     tree: KDTree
     # State variables
     target_profile: np.ndarray

@@ -13,8 +13,8 @@ from myselectors import *
 
 # NOTE: Experiments on combining two selection different selection rounds.
 
-SC_FILE = "../data/Harvard_nuclei_small_train2.sc.h5ad"
-ST_FILE = "../data/Harvard_nuclei_small_test.st.h5ad"
+SC_FILE = "../data/reference/hca_harvard_donor_H6.sc.h5ad"
+ST_FILE = "../data/st/hca_harvard_donor_H5.st.h5ad"
 TREE_DEPTH = 10
 
 

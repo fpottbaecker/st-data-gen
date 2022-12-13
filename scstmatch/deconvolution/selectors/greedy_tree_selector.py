@@ -9,6 +9,9 @@ from .selector import Selector
 
 
 class GreedySelector(Selector):
+    """
+    Implementation of the greedy euclidean selector
+    """
     means: np.ndarray
     factors: np.array
     # State variables
