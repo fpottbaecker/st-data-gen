@@ -1,5 +1,4 @@
 from os.path import basename, exists
-from typing import Optional
 
 import anndata as ad
 import numpy as np

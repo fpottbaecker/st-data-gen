@@ -8,6 +8,7 @@ __all__ = ['PCAWrapper', 'wrap_pca']
 
 NUM_PCS = 50
 
+# NOTE: Experiments on using principle components
 
 def wrap_pca(selector_klass):
     def wrap(sc_data):

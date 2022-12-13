@@ -11,6 +11,8 @@ from tqdm import tqdm
 import util
 from myselectors import *
 
+# NOTE: Experiments on combining two selection different selection rounds.
+
 SC_FILE = "../data/Harvard_nuclei_small_train2.sc.h5ad"
 ST_FILE = "../data/Harvard_nuclei_small_test.st.h5ad"
 TREE_DEPTH = 10

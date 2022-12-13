@@ -7,7 +7,12 @@ from scstmatch.util import load_pickle, pickle_to_file, sha256_for_file
 
 class Dataset:
     """
+    A generic transcriptomics count dataset.
 
+    Attributes:
+        anndata: The underlying annotated count data
+        cache: The cache utility for this dataset
+        source_path: The location of the file on disk, if persisted
     """
     anndata: ad.AnnData
 
@@ -25,14 +30,25 @@ class Dataset:
         self.anndata.write(path)
 
     def write(self, path):
+        """
+        Writes the dataset to disk, this also sets the source_path accordingly
+        :param path: the path to write to
+        """
         self._write(path)
         self.source_path = path
 
     def copy_with(self, anndata: ad.AnnData):
+        """
+        :param anndata: An annotated count dataset
+        :return: A copy of this dataset proxy with the given anndata
+        """
         return Dataset(anndata, self.source_path)
 
 
 class DatasetCache:
+    """
+    A cache utility for dataset classes
+    """
     def __init__(self, dataset: Dataset):
         self.dataset = dataset
 
@@ -52,11 +68,20 @@ class DatasetCache:
         return f"{self.directory()}/{key}.pickle"
 
     def __getitem__(self, key):
+        """
+        :param key: A cache key
+        :return: The cached data, if it exists
+        """
         path = self.path_for(key)
         if not os.path.exists(path):
             return None
         return load_pickle(path)
 
     def __setitem__(self, key, value):
+        """
+        Stores the given object in the cache, which writes to disk
+        :param key: A cache key
+        :param value: The data to cache
+        """
         path = self.path_for(key)
         pickle_to_file(value, path)

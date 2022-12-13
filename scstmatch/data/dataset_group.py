@@ -4,6 +4,9 @@ from .dataset import Dataset
 
 
 class DatasetGroup:
+    """
+    Utility class for managing groups of datasets processed in a pipeline.
+    """
     data: dict[str, Dataset]
 
     def __init__(self, data: dict[str, Dataset]):

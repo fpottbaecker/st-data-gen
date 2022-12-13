@@ -78,7 +78,7 @@ def generate_table(rows, columns):
         df.index.name = "Target"
         df.columns.name = "Reference"
 
-    print(df.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True,
+    print(df_evaluate.style.highlight_max(color="black", props="bfseries:").set_precision(4).to_latex(hrules=True,
                                                                                              clines="skip-last;index"))
 
 
@@ -135,4 +135,4 @@ def generate_data():
 
 if __name__ == "__main__":
     generate_data()
-    # generate_table(ROWS, COLUMNS)
+    generate_table(ROWS, COLUMNS)
