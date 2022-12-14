@@ -9,8 +9,6 @@ from scipy.stats import ttest_ind
 from scstmatch.data import SingleCellDataset, SpatialTranscriptomicsDataset
 from scstmatch.matching import SpotNMatch
 
-# NOTE: This File requires a modification of the SpotNMatch class to return all values, not just the v scores
-
 FILE_A = "../../../data/reference/hca_sanger_gender_Female.sc.h5ad"
 FILE_B = "../../../data/reference/hca_harvard_gender_Male_-muscles.sc.h5ad"
 
@@ -132,7 +130,7 @@ def generate_data():
     # plt.set_title("filter-genes = evaluate (HCA dataset)")
     fig.savefig("filter_evaluate.pdf")
 
-
+# NOTE: This File requires a modification of the SpotNMatch class to return all values, not just the v scores
 if __name__ == "__main__":
     generate_data()
     #generate_table(ROWS, COLUMNS)
